@@ -1,14 +1,37 @@
 import { Breadcrumb } from 'antd';
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import CustomLayout from '../components/common/Layout';
 
+const breadcrumbNameMap = {
+    '/admin/dashboard': 'Dashboard',
+    '/admin/orders': 'Orders Table',
+    '/admin/products': 'Products Table',
+    '/admin/shipping': 'Shipping',
+    '/admin/customers': 'Customers Table',
+    '/admin/staff': 'Staff Table',
+};
+
 const AdminPage = () => {
+    const location = useLocation();
+    const pathSnippets = location.pathname.split('/').filter(i => i);
+    const extraBreadcrumbItems = pathSnippets.map((_, index) => {
+        const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+        return (
+            <Breadcrumb.Item key={url}>
+                {breadcrumbNameMap[url]}
+            </Breadcrumb.Item>
+        );
+    });
+
+    const breadcrumbItems = [
+        <Breadcrumb.Item key="home">Admin</Breadcrumb.Item>
+    ].concat(extraBreadcrumbItems);
+
     return (
         <CustomLayout>
             <Breadcrumb style={{ margin: '16px 0' }}>
-                <Breadcrumb.Item>Admin</Breadcrumb.Item>
-                <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
+                {breadcrumbItems}
             </Breadcrumb>
             <div
                 style={{
@@ -18,7 +41,7 @@ const AdminPage = () => {
                     borderRadius: '8px',
                 }}
             >
-                <Outlet /> {/* Outlet sẽ render component tương ứng với đường dẫn */}
+                <Outlet />
             </div>
         </CustomLayout>
     );

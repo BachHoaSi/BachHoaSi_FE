@@ -23,16 +23,16 @@ export const router = createBrowserRouter([
             },
             // {
             //     path: "products",
-            //     element: <ProductsTable />, // Giả sử bạn có component ProductsTable
+            //     element: <ProductsTable />,
             // },
             // {
             //     path: "shipping",
-            //     element: <Shipping />, // Giả sử bạn có component Shipping
+            //     element: <Shipping />,
             // },
             // {
             //     path: "staff",
-            //     element: <StaffTable />, // Giả sử bạn có component StaffTable
+            //     element: <StaffTable />,
             // },
-        ]
+        ],
     },
 ]);
