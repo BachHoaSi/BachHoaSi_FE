@@ -1,7 +1,7 @@
 import { Breadcrumb } from 'antd';
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import CustomLayout from '../components/common/Layout';
+import CustomLayout from '../components/Common/Layout';
 
 const breadcrumbNameMap = {
     '/admin/dashboard': 'Dashboard',
