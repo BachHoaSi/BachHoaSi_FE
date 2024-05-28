@@ -32,6 +32,26 @@
     }
 }
 
+// Điều chỉnh menu khi sidebar thu nhỏ
+.ant-menu.ant-menu-root.ant-menu-vertical.ant-menu-dark.ant-menu-inline-collapsed.css-j9bb5n {
+    flex: 0 0 80px;
+    max-width: 80px;
+    min-width: 80px;
+    width: 80px;
+    position: fixed;
+    top: 70px;
+    transition: all 0.3s ease;
+}
+
+// Điều chỉnh menu khi sidebar ở dạng lớn
+.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-dark.css-j9bb5n {
+    position: fixed;
+    border-inline-end: 0px solid rgba(5, 5, 5, 0.06);
+    width: 200px;
+    top: 70px;
+    transition: all 0.3s ease;
+}
+
 .ant-menu.ant-menu-root.ant-menu-vertical.ant-menu-dark.ant-menu-inline-collapsed.css-dev-only-do-not-override-j9bb5n{
     flex: 0 0 80px;
     max-width: 80px;
