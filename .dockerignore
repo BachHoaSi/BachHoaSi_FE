@@ -5,3 +5,4 @@ vercel.json
 .git
 .github
 .gitignore
+node_modules
