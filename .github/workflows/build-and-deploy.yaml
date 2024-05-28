@@ -41,5 +41,6 @@ jobs:
       run: docker compose -p bach-hoa-si-fe-test down bachhoasi-fe
     - name: Clean Old BachHoaSi Image
       run: docker rmi ${{secrets.DOCKER_USERNAME}}/bach-hoa-si-fe:latest
+      continue-on-error: true
     - name: Deploy API
       run: docker compose -p bach-hoa-si-fe-test up -d bachhoasi-fe
