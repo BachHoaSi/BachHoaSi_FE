@@ -1,6 +1,6 @@
-FROM oven/bun AS build
+FROM oven/bun:canary-alpine AS build
 
-WORKDIR /app
+WORKDIR /bachhoasi
 
 COPY package*.json ./
 
@@ -10,9 +10,10 @@ COPY . .
 
 RUN bun run build
 
-# Stage 2: Create the Nginx image with the built app
-FROM nginx AS runner
+FROM nginx:alpine AS runner
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /bachhoasi/nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /usr/share/nginx/html
+COPY --from=build /bachhoasi/dist .
 
 CMD ["nginx", "-g", "daemon off;"]
