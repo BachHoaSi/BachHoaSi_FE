@@ -3,7 +3,9 @@ import AdminDashboard from "../components/Admin/ChartDashboard";
 import CustomersTable from "../components/Admin/CustomersTable";
 import OrdersTable from "../components/Admin/OrdersTable";
 import StaffsTable from "../components/Admin/StaffsTable";
+import NotFound from "../components/NotFound";
 import AdminPage from "../pages/AdminPage";
+
 
 export const router = createBrowserRouter([
     {
@@ -34,6 +36,14 @@ export const router = createBrowserRouter([
                 path: "staff",
                 element: <StaffsTable />,
             },
-        ],
+            {
+                path: "*",
+                element: <NotFound />,
+            }
+        ]
+    },
+    {
+        path: "*",
+        element: <NotFound />,
     },
 ]);

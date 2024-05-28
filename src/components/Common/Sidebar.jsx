@@ -8,7 +8,9 @@ import {
 import { Layout, Menu } from 'antd';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../Style/sidebar.scss';
 import Logo from '/src/assets/images/logo.svg'; // Import logo SVG
+
 
 const { Sider } = Layout;
 

@@ -81,6 +81,9 @@ const CustomHeader = () => {
     return (
         <Header
             style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
                 padding: 0,
                 background: '#fff',
                 display: 'flex',

@@ -1,0 +1,51 @@
+// Kiểu chung cho logo
+.logo {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+// Logo khi sidebar ở dạng thu nhỏ
+.ant-layout-sider-collapsed .logo {
+    width: 80px; 
+    padding: 0px !important;
+    top: 17px !important;
+    transition: all 0.3s ease;
+    img {
+        width: 100%; 
+        max-height: 40px; 
+        transition: max-height 0.3s ease;
+    }
+}
+
+// Logo khi sidebar ở dạng lớn
+.ant-layout-sider:not(.ant-layout-sider-collapsed) .logo {
+    width: 200px; 
+    padding: 16px; 
+    transition: all 0.3s ease;
+    img {
+        width: 100%; 
+        max-height: 50px; 
+        transition: max-height 0.3s ease;
+    }
+}
+
+.ant-menu.ant-menu-root.ant-menu-vertical.ant-menu-dark.ant-menu-inline-collapsed.css-dev-only-do-not-override-j9bb5n{
+    flex: 0 0 80px;
+    max-width: 80px;
+    min-width: 80px;
+    width: 80px;
+    position: fixed;
+    top: 70px;
+    transition: all 0.3s ease;
+}
+
+.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-dark.css-dev-only-do-not-override-j9bb5n{
+    position: fixed;
+    border-inline-end: 0px solid rgba(5, 5, 5, 0.06);
+    width: 200px;
+    top: 70px;
+    transition: all 0.3s ease;
+}
