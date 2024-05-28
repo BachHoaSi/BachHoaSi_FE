@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  bachhoasi-fe:
+    container_name: bachhoasi-fe-test
+    image: ${DOCKER_USERNAME}/bach-hoa-si-fe:latest
+    ports:
+      - 5000:80
