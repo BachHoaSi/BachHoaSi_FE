@@ -1,0 +1,7 @@
+.dockerignore
+docker-compose.dev.yaml
+docker-compose.yaml
+vercel.json
+.git
+.github
+.gitignore
