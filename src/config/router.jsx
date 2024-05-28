@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import AdminDashboard from "../components/Admin/ChartDashboard";
 import CustomersTable from "../components/Admin/CustomersTable";
 import OrdersTable from "../components/Admin/OrdersTable";
+import StaffsTable from "../components/Admin/StaffsTable";
 import AdminPage from "../pages/AdminPage";
 
 export const router = createBrowserRouter([
@@ -29,10 +30,10 @@ export const router = createBrowserRouter([
             //     path: "shipping",
             //     element: <Shipping />,
             // },
-            // {
-            //     path: "staff",
-            //     element: <StaffTable />,
-            // },
+            {
+                path: "staff",
+                element: <StaffsTable />,
+            },
         ],
     },
 ]);
