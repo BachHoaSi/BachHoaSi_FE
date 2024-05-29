@@ -27,10 +27,10 @@ export const router = createBrowserRouter([
                 path: "customers",
                 element: <CustomersTable />,
             },
-            // {
-            //     path: "products",
-            //     element: <ProductsTable />,
-            // },
+            {
+                path: "products",
+                element: <ProductsTable />,
+            },
             // {
             //     path: "shipping",
             //     element: <Shipping />,
