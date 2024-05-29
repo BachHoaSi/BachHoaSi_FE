@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import AdminDashboard from "../components/Admin/ChartDashboard";
 import CustomersTable from "../components/Admin/CustomersTable";
 import OrdersTable from "../components/Admin/OrdersTable";
+import ProductsTable from "../components/Admin/ProductsTable";
 import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
 import AdminPage from "../pages/AdminPage";
