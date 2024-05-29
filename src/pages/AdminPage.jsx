@@ -14,19 +14,19 @@ const breadcrumbNameMap = {
 
 const AdminPage = () => {
     const location = useLocation();
-    const pathSnippets = location.pathname.split('/').filter(i => i);
-    const extraBreadcrumbItems = pathSnippets.map((_, index) => {
-        const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
-        return (
-            <Breadcrumb.Item key={url}>
-                {breadcrumbNameMap[url]}
-            </Breadcrumb.Item>
-        );
-    });
 
-    const breadcrumbItems = [
-        <Breadcrumb.Item key="home">Admin</Breadcrumb.Item>
-    ].concat(extraBreadcrumbItems);
+    const pathSnippets = location.pathname.split('/').filter(i => i !== '');
+    const extraBreadcrumbItems = pathSnippets
+        .map((snippet, index) => {
+            const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
+            return (
+                <Breadcrumb.Item key={url}>
+                    {breadcrumbNameMap[url] || snippet.charAt(0).toUpperCase() + snippet.slice(1)}
+                </Breadcrumb.Item>
+            );
+        });
+
+    const breadcrumbItems = extraBreadcrumbItems;
 
     return (
         <CustomLayout>

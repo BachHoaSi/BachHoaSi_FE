@@ -1,4 +1,3 @@
-// src/components/Common/Layout.js
 import { Layout } from 'antd';
 import React from 'react';
 import CustomFooter from './Footer';

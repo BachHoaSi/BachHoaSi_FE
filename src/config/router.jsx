@@ -6,12 +6,15 @@ import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
 import AdminPage from "../pages/AdminPage";
 
-
 export const router = createBrowserRouter([
     {
         path: "/admin",
         element: <AdminPage />,
         children: [
+            {
+                path: "",
+                element: <AdminDashboard />,
+            },
             {
                 path: "dashboard",
                 element: <AdminDashboard />,

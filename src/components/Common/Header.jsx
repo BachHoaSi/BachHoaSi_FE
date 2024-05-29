@@ -78,6 +78,28 @@ const CustomAvatarDropdown = () => {
 };
 
 const CustomHeader = () => {
+    const [userRole, setUserRole] = useState(null);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await fetch('/api/user/role');
+                const data = await response.json();
+                setUserRole(data.role);
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+            }
+        };
+
+        fetchUserRole();
+    }, []);
+
+    const title = userRole === 'admin' ? 'Admin Dashboard' :
+        userRole === 'staff' ? 'Staff Dashboard' :
+            userRole === 'shipper' ? 'Shipper Dashboard' :
+                'Admin Dashboard';
+
+
     return (
         <Header
             style={{
@@ -90,7 +112,7 @@ const CustomHeader = () => {
                 alignItems: 'center',
             }}
         >
-            <Title level={5} style={{ marginLeft: 50 }}>Admin Dashboard</Title> {/* Thêm Title ở đây */}
+            <Title level={5} style={{ marginLeft: 50 }}>{title}</Title>
             <div style={{ flexGrow: 1, }} />
             <CustomAvatarDropdown />
         </Header>
