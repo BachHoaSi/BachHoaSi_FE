@@ -1,42 +1,63 @@
-import { DeleteOutlined, DownOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Empty, Input, Space, Table } from 'antd';
-import React, { useRef, useState } from 'react';
+import { DeleteOutlined, DownOutlined, EditOutlined } from '@ant-design/icons';
+import { Dropdown, Empty, Input, Space, Table } from 'antd';
+import React, { useState } from 'react';
 
-const data = [
-    {
-        key: '1',
-        product: {
-            name: 'Gấu Bông Capybara',
-            image: 'https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898',
-            quantity: 10,
-            price: 29.99,
-        }
-    },
-    {
-        key: '2',
-        product: {
-            name: 'Product B',
-            image: 'https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898',
-            quantity: 2,
-            price: 19.99,
-        },
-    },
+const productNames = [
+    "Gấu Bông Capybara",
+    "Gấu Bông Khủng Long",
+    "Gấu Bông Kỳ Lân",
+    "Gấu Bông Mèo Thần Tài",
+    "Gấu Bông Stitch",
+    "Gấu Bông Thỏ Cony",
+    "Gấu Bông Totoro",
+    "Gấu Bông We Bare Bears",
+    "Gối Ôm Hình Trái Tim",
+    "Gối Ôm Hình Chữ U",
 ];
 
+const imageUrls = [
+    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
+    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
+    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
+    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
+    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
+];
+
+const data = [];
+for (let i = 1; i <= 50; i++) {
+    const product = {
+        id: `P${i.toString().padStart(3, '0')}`,
+        name: productNames[Math.floor(Math.random() * productNames.length)],
+        image: imageUrls[Math.floor(Math.random() * imageUrls.length)],
+        quantity: Math.floor(Math.random() * 50) + 1, // Số lượng từ 1 đến 50
+        price: (Math.random() * 100).toFixed(2), // Giá từ 0.00 đến 99.99
+    };
+    data.push({
+        key: i.toString(),
+        product,
+    });
+}
+
 const OrdersTable = () => {
-    const [searchText, setSearchText] = useState('');
     const [filteredData, setFilteredData] = useState(data);
-    const searchInput = useRef(null);
 
     const handleSearch = (value) => {
         const searchQuery = value.toLowerCase();
-        const filtered = data.filter((record) =>
-            record.product.name.toLowerCase().includes(searchQuery)
-        );
+        const filtered = data.filter((record) => {
+            return Object.values(record.product).some((field) =>
+                field.toString().toLowerCase().includes(searchQuery)
+            );
+        });
         setFilteredData(filtered);
     };
 
     const columns = [
+        {
+            title: 'ProductID',
+            dataIndex: ['product', 'id'],
+            key: 'product.id',
+            width: '15%',
+        },
         {
             title: 'Product Name',
             dataIndex: 'product',
@@ -47,26 +68,6 @@ const OrdersTable = () => {
                     <span>{product.name}</span>
                 </Space>
             ),
-            filterDropdown: () => (
-                <div style={{ padding: 8 }}>
-                    <Input
-                        ref={searchInput}
-                        placeholder="Search product name"
-                        onChange={(e) => setSearchText(e.target.value)}
-                        onPressEnter={() => handleSearch(searchText)}
-                    />
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(searchText)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{ width: 90, marginTop: 8 }}
-                    >
-                        Search
-                    </Button>
-                </div>
-            ),
-            filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
         },
         {
             title: 'Quantity',
@@ -99,11 +100,22 @@ const OrdersTable = () => {
 
     return (
         <>
+            <Input.Search
+                placeholder="Tìm kiếm"
+                allowClear
+                enterButton="Search"
+                size="large"
+                onSearch={handleSearch}
+                style={{ marginBottom: 16 }}
+            />
             <Table
                 columns={columns}
                 dataSource={filteredData}
                 locale={{
                     emptyText: <Empty description="Không tìm thấy dữ liệu" />,
+                }}
+                pagination={{
+                    pageSize: 7,
                 }}
             />
         </>
