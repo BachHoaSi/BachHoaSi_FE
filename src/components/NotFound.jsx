@@ -3,7 +3,7 @@ import React from 'react';
 
 const NotFound = () => {
     return (
-        <div class="animate__animated animate__flash">
+        <div className="animate__animated animate__flash">
             <div
                 style={{
                     padding: 24,
