@@ -4,9 +4,10 @@ import CustomersTable from "../components/Admin/CustomersTable";
 import OrdersTable from "../components/Admin/OrdersTable";
 import ProductsTable from "../components/Admin/ProductsTable";
 import StaffsTable from "../components/Admin/StaffsTable";
-import LoginPage from "../components/Common/LoginPage";
 import NotFound from "../components/NotFound";
 import AdminPage from "../pages/AdminPage";
+import LoginPage from "../pages/LoginPage";
+import SignupPage from '../pages/SignupPage';
 
 export const router = createBrowserRouter([
     {
@@ -52,7 +53,11 @@ export const router = createBrowserRouter([
         element: <NotFound />,
     },
     {
-        path: "/",
+        path: "/login",
         element: <LoginPage />,
+    },
+    {
+        path: "/signup",
+        element: <SignupPage />,
     }
 ]);
