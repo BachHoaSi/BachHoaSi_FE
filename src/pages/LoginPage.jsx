@@ -31,7 +31,7 @@ const Header = () => (
   <AppBar position="static" sx={{ bgcolor: 'rgba(0, 0, 0, 0.65)' }}>
     <Toolbar>
       <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'white' }}>
-        Bach Hoa Si
+        <Link href="/admin/dashboard" underline="none">Bach Hoa Si</Link>
       </Typography>
       <Link href="/signup" color="inherit" underline="none">Sign Up</Link>
     </Toolbar>
