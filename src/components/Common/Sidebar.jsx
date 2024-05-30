@@ -7,10 +7,9 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../Style/sidebar.scss';
 import Logo from '/src/assets/images/logo.svg'; // Import logo SVG
-
 
 const { Sider } = Layout;
 
@@ -34,11 +33,14 @@ const items = [
 
 const Sidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
+    const [currentKey, setCurrentKey] = useState('1'); // Thêm trạng thái để theo dõi trang hiện tại
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleMenuClick = (e) => {
         const item = items.find((item) => item.key === e.key);
         if (item) {
+            setCurrentKey(e.key); // Cập nhật trang hiện tại khi click vào menu
             navigate(item.path);
         }
     };

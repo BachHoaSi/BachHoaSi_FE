@@ -34,7 +34,7 @@ class SearchableTable extends React.Component {
                 <Table
                     columns={this.props.columns}
                     dataSource={this.state.filteredData}
-                    {...this.props.tableProps} // Các thuộc tính khác của Table
+                    {...this.props.tableProps}
                 />
             </>
         );

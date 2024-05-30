@@ -80,110 +80,112 @@ const Dashboard = () => {
     ];
 
     return (
-        <StyledDashboard>
-            <Row gutter={[16, 16]}>
-                <Col span={24}>
-                    <Header>
-                        <Title level={2}>Dashboard</Title>
-                        <Space>
-                            <span>Xin chào, Admin</span>
-                            <RangePicker onChange={handleDateRangeChange} />
-                            <Select defaultValue="week" style={{ width: 120 }}>
-                                <Option value="week">Tuần này</Option>
-                                <Option value="month">Tháng này</Option>
-                            </Select>
-                        </Space>
-                    </Header>
-                </Col>
+        <div className="animate__animated animate__backInUp" >
+            <StyledDashboard>
+                <Row gutter={[16, 16]}>
+                    <Col span={24}>
+                        <Header>
+                            <Title level={2}>Dashboard</Title>
+                            <Space>
+                                <span>Xin chào, Admin</span>
+                                <RangePicker onChange={handleDateRangeChange} />
+                                <Select defaultValue="week" style={{ width: 120 }}>
+                                    <Option value="week">Tuần này</Option>
+                                    <Option value="month">Tháng này</Option>
+                                </Select>
+                            </Space>
+                        </Header>
+                    </Col>
 
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Tổng đơn hàng" value={1234} />
-                    </Card>
-                </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Doanh thu" prefix="$" value={56789.0} />
-                    </Card>
-                </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Lợi nhuận" prefix="$" value={23456.78} />
-                    </Card>
-                </Col>
-                <Col span={6}>
-                    <Card>
-                        <Statistic title="Khách hàng" value={987} />
-                    </Card>
-                </Col>
+                    <Col span={6}>
+                        <Card>
+                            <Statistic title="Tổng đơn hàng" value={1234} />
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card>
+                            <Statistic title="Doanh thu" prefix="$" value={56789.0} />
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card>
+                            <Statistic title="Lợi nhuận" prefix="$" value={23456.78} />
+                        </Card>
+                    </Col>
+                    <Col span={6}>
+                        <Card>
+                            <Statistic title="Khách hàng" value={987} />
+                        </Card>
+                    </Col>
 
-                <Col span={16}>
-                    <Card title="Reports">
-                        <ResponsiveContainer width="100%" height={300}>
-                            <LineChart data={salesData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="date" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Line type="monotone" dataKey="sales" stroke="#8884d8" />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </Card>
-                </Col>
+                    <Col span={16}>
+                        <Card title="Reports">
+                            <ResponsiveContainer width="100%" height={300}>
+                                <LineChart data={salesData}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="date" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="sales" stroke="#8884d8" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </Card>
+                    </Col>
 
-                <Col span={8}>
-                    <Card title="Analytics">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                            <span>Transactions:</span>
-                            <Progress percent={75} />
-                        </div>
-                        <ResponsiveContainer width="100%" height={262}>
-                            <PieChart>
-                                <Pie
-                                    data={transactionData}
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    label
+                    <Col span={8}>
+                        <Card title="Analytics">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                                <span>Transactions:</span>
+                                <Progress percent={75} />
+                            </div>
+                            <ResponsiveContainer width="100%" height={262}>
+                                <PieChart>
+                                    <Pie
+                                        data={transactionData}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                        label
 
-                                >
-                                    {transactionData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </Card>
-                </Col>
+                                    >
+                                        {transactionData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </Card>
+                    </Col>
 
-                <Col span={12}>
-                    <Card title="Recent Orders">
-                        <Table columns={columns} dataSource={recentOrders} pagination={false} />
-                    </Card>
-                </Col>
+                    <Col span={12}>
+                        <Card title="Recent Orders">
+                            <Table columns={columns} dataSource={recentOrders} pagination={false} />
+                        </Card>
+                    </Col>
 
-                <Col span={12}>
-                    <Card title="Top Selling Products">
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={topProducts}
-                            renderItem={(item) => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${item.id}`} />}
-                                        title={item.name}
-                                        description={`Sales: ${item.sales}`}
-                                    />
-                                </List.Item>
-                            )}
-                        />
-                    </Card>
-                </Col>
-            </Row>
-        </StyledDashboard>
+                    <Col span={12}>
+                        <Card title="Top Selling Products">
+                            <List
+                                itemLayout="horizontal"
+                                dataSource={topProducts}
+                                renderItem={(item) => (
+                                    <List.Item>
+                                        <List.Item.Meta
+                                            avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${item.id}`} />}
+                                            title={item.name}
+                                            description={`Sales: ${item.sales}`}
+                                        />
+                                    </List.Item>
+                                )}
+                            />
+                        </Card>
+                    </Col>
+                </Row>
+            </StyledDashboard>
+        </div>
     );
 };
 

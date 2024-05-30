@@ -1,7 +1,7 @@
 import { DeleteOutlined, DownOutlined, EditOutlined } from '@ant-design/icons';
 import { Dropdown, Empty, Space } from 'antd';
 import React, { useRef, useState } from 'react';
-import SearchableTable from './Functions/SearchableTable';
+import SearchableTable from '../Functions/SearchableTable';
 
 const data = [];
 
@@ -142,14 +142,16 @@ const OrdersTable = () => {
     ];
 
     return (
-        <SearchableTable
-            data={filteredData.length > 0 ? filteredData : data} // Dữ liệu đã lọc hoặc dữ liệu gốc
-            columns={columns}
-            tableProps={{
-                onChange: handleChange, // Xử lý sự kiện thay đổi trong bảng (phân trang, sắp xếp, ...)
-                locale: { emptyText: <Empty description="Không tìm thấy dữ liệu" /> },
-            }}
-        />
+        <div className="animate__animated animate__backInUp" >
+            <SearchableTable
+                data={filteredData.length > 0 ? filteredData : data} // Dữ liệu đã lọc hoặc dữ liệu gốc
+                columns={columns}
+                tableProps={{
+                    onChange: handleChange, // Xử lý sự kiện thay đổi trong bảng (phân trang, sắp xếp, ...)
+                    locale: { emptyText: <Empty description="Không tìm thấy dữ liệu" /> },
+                }}
+            />
+        </div>
     );
 };
 

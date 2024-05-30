@@ -99,26 +99,29 @@ const OrdersTable = () => {
     ];
 
     return (
-        <>
-            <Input.Search
-                placeholder="Tìm kiếm"
-                allowClear
-                enterButton="Search"
-                size="large"
-                onSearch={handleSearch}
-                style={{ marginBottom: 16 }}
-            />
-            <Table
-                columns={columns}
-                dataSource={filteredData}
-                locale={{
-                    emptyText: <Empty description="Không tìm thấy dữ liệu" />,
-                }}
-                pagination={{
-                    pageSize: 7,
-                }}
-            />
-        </>
+        <div class="animate__animated animate__backInUp">
+            <>
+                <Input.Search
+                    placeholder="Tìm kiếm"
+                    allowClear
+                    enterButton="Search"
+                    size="large"
+                    onSearch={handleSearch}
+                    style={{ marginBottom: 16 }}
+                />
+                <Table
+                    columns={columns}
+                    dataSource={filteredData}
+                    locale={{
+                        emptyText: <Empty description="Không tìm thấy dữ liệu" />,
+                    }}
+                    pagination={{
+                        pageSize: 7,
+                    }}
+                />
+
+            </>
+        </div>
     );
 };
 
