@@ -7,25 +7,62 @@ import {
 } from '@mui/icons-material';
 import {
   Alert,
+  AppBar,
   Avatar,
   Box,
   Button,
   Container,
   CssBaseline,
   Divider,
+  Link,
   Paper,
   TextField,
+  Toolbar,
   Typography,
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme();
 
+// Header Component
+const Header = () => (
+  <AppBar position="static" sx={{ bgcolor: 'rgba(0, 0, 0, 0.65)' }}>
+    <Toolbar>
+      <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'white' }}>
+        Bach Hoa Si
+      </Typography>
+      <Link href="/signup" color="inherit" underline="none">Sign Up</Link>
+    </Toolbar>
+  </AppBar>
+);
+
+// Footer Component
+const Footer = () => (
+  <Box
+    component="footer"
+    sx={{
+      bgcolor: 'rgba(0, 0, 0, 0.65)',
+      p: 2,
+      textAlign: 'center',
+      color: 'white',
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      width: '100%',
+    }}
+  >
+    <Typography variant="body2" color="inherit">
+      Bach Hoa Xanh &copy; {new Date().getFullYear()} Created by Nhat Sang
+    </Typography>
+  </Box>
+);
+
+
 const LoginPage = () => {
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -33,15 +70,14 @@ const LoginPage = () => {
     const username = formData.get('username');
     const password = formData.get('password');
 
-    // Temporary username/password check (replace with actual authentication logic later)
     if (username === 'admin@123' && password === 'admin@123') {
       console.log("Login successful!");
-      navigate('/admin/dashboard'); // Redirect to the admin dashboard
+      navigate('/admin/dashboard');
     } else {
       setError("Invalid username or password.");
     }
 
-    // Commented out API call for now
+    // Commented out API call 
     /*
     try {
       const response = await fetch('/your-login-endpoint', { 
@@ -63,6 +99,7 @@ const LoginPage = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <Header />
       <Container component="main" maxWidth="xs" sx={{ position: 'relative' }}>
         <CssBaseline />
         <video
@@ -95,9 +132,9 @@ const LoginPage = () => {
               <GitHub />
             </Avatar>
             <Typography component="h1" variant="h5">
-              GitHub
+              Bach Hoa Si
             </Typography>
-            <Typography component="p">Nền tảng quản lý mã nguồn lớn nhất thế giới</Typography>
+            <Typography component="p">Nền tảng phân phối hàng hóa lớn nhất thế giới</Typography>
 
             <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit}>
               <TextField
@@ -177,6 +214,7 @@ const LoginPage = () => {
           </Box>
         </Paper>
       </Container>
+      <Footer />
     </ThemeProvider>
   );
 };
