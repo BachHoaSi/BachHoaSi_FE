@@ -52,7 +52,7 @@ const Footer = () => (
     </Box>
 );
 
-const SignUpPage = () => {
+const SignupPage = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -233,4 +233,4 @@ const SignUpPage = () => {
     );
 };
 
-export default SignUpPage;
+export default SignupPage;
