@@ -7,7 +7,7 @@ import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
 import AdminPage from "../pages/AdminPage";
 import LoginPage from "../pages/LoginPage";
-import SignupPage from "../pages/SignupPage";
+// import SignupPage from "../pages/SignupPage";
 
 export const router = createBrowserRouter([
     {
@@ -56,8 +56,8 @@ export const router = createBrowserRouter([
         path: "/login",
         element: <LoginPage />,
     },
-    {
-        path: "/signup",
-        element: <SignupPage />,
-    }
+    // {
+    //     path: "/signup",
+    //     element: <SignupPage />,
+    // }
 ]);
