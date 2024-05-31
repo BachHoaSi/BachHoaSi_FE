@@ -24,11 +24,11 @@ function getItem(label, key, icon, path) {
 
 const items = [
     getItem('DashBoard', '1', <LineChartOutlined />, '/admin/dashboard'),
-    getItem('Orders Table', '2', <AuditOutlined />, '/admin/orders'),
-    getItem('Products Table', '3', <ProductOutlined />, '/admin/products'),
+    getItem('Orders', '2', <AuditOutlined />, '/admin/orders'),
+    getItem('Products', '3', <ProductOutlined />, '/admin/products'),
     getItem('Shipping', '4', <DeliveredProcedureOutlined />, '/admin/shipping'),
-    getItem('Customers Table', '5', <UserOutlined />, '/admin/customers'),
-    getItem('Staff Table', '6', <UserOutlined />, '/admin/staff'),
+    getItem('Customers', '5', <UserOutlined />, '/admin/customers'),
+    getItem('Staff', '6', <UserOutlined />, '/admin/staff'),
 ];
 
 const Sidebar = () => {
