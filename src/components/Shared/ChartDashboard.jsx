@@ -1,3 +1,4 @@
+import 'animate.css'; // Import animate.css here
 import {
     Avatar,
     Card,
@@ -11,7 +12,7 @@ import {
     Statistic, Table,
     Typography,
 } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     CartesianGrid,
     Cell,
@@ -30,7 +31,7 @@ const { Title } = Typography;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-// Dữ liệu mẫu
+// Sample Data
 const salesData = [
     { date: '2024-05-01', sales: 2500 },
     { date: '2024-05-05', sales: 1800 },
@@ -52,15 +53,12 @@ const recentOrders = [
     { id: 101, customer: 'John Doe', date: '2024-05-27', amount: 54.99 },
     { id: 102, customer: 'Jane Smith', date: '2024-05-26', amount: 89.50 },
     { id: 103, customer: 'Mike Johnson', date: '2024-05-25', amount: 125.20 },
-    { id: 101, customer: 'John Doe', date: '2024-05-27', amount: 54.99 },
-    { id: 102, customer: 'Jane Smith', date: '2024-05-26', amount: 89.50 },
-    { id: 103, customer: 'Mike Johnson', date: '2024-05-25', amount: 125.20 }
 ];
 
 const transactionData = [
-    { name: 'Hoàn thành', value: 400 },
-    { name: 'Chờ xử lý', value: 300 },
-    { name: 'Thất bại', value: 300 },
+    { name: 'Completed', value: 400 },
+    { name: 'Pending', value: 300 },
+    { name: 'Failed', value: 300 },
 ];
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
@@ -72,6 +70,17 @@ const Dashboard = () => {
         setSelectedRange(dates);
     };
 
+    const [animate, setAnimate] = useState('');
+
+    useEffect(() => {
+        const animationDirection = sessionStorage.getItem('animationDirection');
+        console.log(animationDirection); // Check the value of animationDirection
+        if (animationDirection) {
+            setAnimate(animationDirection);
+            sessionStorage.removeItem('animationDirection');
+        }
+    }, []);
+
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
         { title: 'Customer', dataIndex: 'customer', key: 'customer' },
@@ -80,18 +89,18 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className="animate__animated animate__backInUp" >
+        <div className={`animate__animated ${animate}`}>
             <StyledDashboard>
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
                         <Header>
                             <Title level={2}>Dashboard</Title>
                             <Space>
-                                <span>Xin chào, Admin</span>
+                                <span>Welcome, Admin</span>
                                 <RangePicker onChange={handleDateRangeChange} />
                                 <Select defaultValue="week" style={{ width: 120 }}>
-                                    <Option value="week">Tuần này</Option>
-                                    <Option value="month">Tháng này</Option>
+                                    <Option value="week">This Week</Option>
+                                    <Option value="month">This Month</Option>
                                 </Select>
                             </Space>
                         </Header>
@@ -99,22 +108,22 @@ const Dashboard = () => {
 
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Tổng đơn hàng" value={1234} />
+                            <Statistic title="Total Orders" value={1234} />
                         </Card>
                     </Col>
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Doanh thu" prefix="$" value={56789.0} />
+                            <Statistic title="Revenue" prefix="$" value={56789.0} />
                         </Card>
                     </Col>
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Lợi nhuận" prefix="$" value={23456.78} />
+                            <Statistic title="Profit" prefix="$" value={23456.78} />
                         </Card>
                     </Col>
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Khách hàng" value={987} />
+                            <Statistic title="Customers" value={987} />
                         </Card>
                     </Col>
 
@@ -149,7 +158,6 @@ const Dashboard = () => {
                                         fill="#8884d8"
                                         dataKey="value"
                                         label
-
                                     >
                                         {transactionData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

@@ -6,7 +6,7 @@ import {
     UserOutlined
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
-import React, { useState } from 'react';
+import { React, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../Style/sidebar.scss';
 import Logo from '/src/assets/images/logo.svg'; // Import logo SVG
@@ -30,17 +30,42 @@ const items = [
     getItem('Customers', '5', <UserOutlined />, '/admin/customers'),
     getItem('Staff', '6', <UserOutlined />, '/admin/staff'),
 ];
+sessionStorage.setItem('sidebarItems', JSON.stringify(items));
 
 const Sidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
-    const [currentKey, setCurrentKey] = useState('1'); // Thêm trạng thái để theo dõi trang hiện tại
+    const [currentKey, setCurrentKey] = useState(() => {
+        const storedKey = sessionStorage.getItem('currentKey');
+        return storedKey || '1';
+    });
     const navigate = useNavigate();
     const location = useLocation();
 
-    const handleMenuClick = (e) => {
+    const currentPath = location.pathname;
+    const activeKey = items.find(item => item.path === currentPath)?.key || '1';
+
+    useEffect(() => {
+        sessionStorage.setItem('currentKey', activeKey);
+    }, [activeKey]);
+
+    const handleMenuClick = async (e) => {
         const item = items.find((item) => item.key === e.key);
         if (item) {
-            setCurrentKey(e.key); // Cập nhật trang hiện tại khi click vào menu
+            const storedCurrentKey = parseInt(sessionStorage.getItem('currentKey'), 10) || 1;
+            const newKey = parseInt(item.key, 10);
+
+            // Compare keys before updating
+            if (newKey > storedCurrentKey) {
+                sessionStorage.setItem('animationDirection', 'animate__backInUp');
+            } else if (newKey < storedCurrentKey) {
+                sessionStorage.setItem('animationDirection', 'animate__backInDown');
+            } else {
+                // No animation if keys are the same
+                sessionStorage.setItem('animationDirection', 'animate__zoomIn');
+            }
+
+            sessionStorage.setItem('currentKey', newKey); // Update currentKey in sessionStorage
+            setCurrentKey(newKey);
             navigate(item.path);
         }
     };
@@ -50,7 +75,7 @@ const Sidebar = () => {
             <div className="logo" style={{ textAlign: 'center', padding: '16px' }}>
                 <img src={Logo} alt="logo" style={{ width: '100%', maxHeight: '50px' }} />
             </div>
-            <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} onClick={handleMenuClick} />
+            <Menu theme="dark" selectedKeys={[activeKey]} mode="inline" items={items} onClick={handleMenuClick} />
         </Sider>
     );
 };

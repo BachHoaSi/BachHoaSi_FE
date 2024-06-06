@@ -30,10 +30,21 @@ const theme = createTheme();
 const Header = () => (
   <AppBar position="static" sx={{ bgcolor: 'rgba(0, 0, 0, 0.65)' }}>
     <Toolbar>
-      <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'white' }}>
-        <Link href="/admin/dashboard" underline="none">Bach Hoa Si</Link>
+      <Typography
+        variant="h6"
+        component="div"
+        sx={{
+          flexGrow: 1,
+          color: 'white',
+          fontFamily: 'Black Ops One',
+          fontSize: '2rem'
+        }}
+      >
+        <Link href="/admin/dashboard" underline="none">
+          Bach Hoa Si
+        </Link>
       </Typography>
-      <Link href="/signup" color="inherit" underline="none">Sign Up</Link>
+      <Link href="/register" color="inherit" underline="none">Register</Link>
     </Toolbar>
   </AppBar>
 );
@@ -131,8 +142,19 @@ const LoginPage = () => {
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <GitHub />
             </Avatar>
-            <Typography component="h1" variant="h5">
-              Bach Hoa Si
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                flexGrow: 1,
+                color: 'white',
+                fontFamily: 'Black Ops One',
+                fontSize: '1.5rem'
+              }}
+            >
+              <Link href="/admin/dashboard" underline="none">
+                Bach Hoa Si
+              </Link>
             </Typography>
             <Typography component="p">Nền tảng phân phối hàng hóa lớn nhất thế giới</Typography>
 

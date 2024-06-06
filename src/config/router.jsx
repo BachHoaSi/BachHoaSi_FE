@@ -1,10 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
-import AdminDashboard from "../components/Admin/ChartDashboard";
-import CustomersTable from "../components/Admin/CustomersTable";
-import OrdersTable from "../components/Admin/OrdersTable";
-import ProductsTable from "../components/Admin/ProductsTable";
 import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
+import AdminDashboard from "../components/Shared/ChartDashboard";
+import CustomersTable from "../components/Shared/CustomersTable";
+import OrdersTable from "../components/Shared/OrdersTable";
+import ProductsTable from "../components/Shared/ProductsTable";
 import AdminPage from "../pages/AdminPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";

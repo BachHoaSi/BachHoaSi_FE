@@ -1,9 +1,10 @@
-import { DeleteOutlined, DownOutlined, EditOutlined } from '@ant-design/icons';
-import { Dropdown, Empty, Space } from 'antd';
-import React, { useRef, useState } from 'react';
+import { DeleteOutlined, DownOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Empty, Space } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import SearchableTable from '../Functions/SearchableTable';
 
 const data = [];
+
 
 const statusOptions = ['Pending', 'Processing', 'Completed', 'Canceled'];
 const customerNames = [
@@ -38,7 +39,7 @@ for (let i = 1; i <= 50; i++) {
         price,
         status,
         createdAt,
-        deliveryAt,  // Thêm trường deliveryAt
+        deliveryAt,
     });
 }
 
@@ -49,6 +50,9 @@ const OrdersTable = () => {
     const searchInput = useRef(null);
     const [filteredData, setFilteredData] = useState(data);
 
+    const handleCreateOrder = () => {
+        console.log('Create Order clicked!');
+    };
     const handleChange = (pagination, filters, sorter) => {
         setFilteredInfo(filters);
         const filteredStatus = filters.status || null;
@@ -141,16 +145,36 @@ const OrdersTable = () => {
         },
     ];
 
+    const [animate, setAnimate] = useState('');
+
+    useEffect(() => {
+        const animationDirection = sessionStorage.getItem('animationDirection');
+        console.log(animationDirection); // Check the value of animationDirection
+        if (animationDirection) {
+            setAnimate(animationDirection);
+            sessionStorage.removeItem('animationDirection');
+        }
+    }, []);
+
     return (
-        <div className="animate__animated animate__backInUp" >
-            <SearchableTable
-                data={filteredData.length > 0 ? filteredData : data} // Dữ liệu đã lọc hoặc dữ liệu gốc
-                columns={columns}
-                tableProps={{
-                    onChange: handleChange, // Xử lý sự kiện thay đổi trong bảng (phân trang, sắp xếp, ...)
-                    locale: { emptyText: <Empty description="Không tìm thấy dữ liệu" /> },
-                }}
-            />
+        <div className={`animate__animated ${animate}`}>
+            <div>
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateOrder}>
+                    Tạo đơn hàng
+                </Button>
+                <SearchableTable
+                    data={filteredData.length > 0 ? filteredData : data}
+                    columns={columns}
+                    searchInputProps={{
+                        style: { display: 'none' }, // Ẩn thanh tìm kiếm trong SearchableTable
+                    }}
+                    tableProps={{
+                        onChange: handleChange,
+                        locale: { emptyText: <Empty description="Không tìm thấy dữ liệu" /> },
+                    }}
+                />
+
+            </div>
         </div>
     );
 };

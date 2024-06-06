@@ -1,6 +1,6 @@
 import { DeleteOutlined, DownOutlined, EditOutlined } from '@ant-design/icons';
 import { Dropdown, Empty, Input, Space, Table } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const productNames = [
     "Gấu Bông Capybara",
@@ -98,8 +98,19 @@ const OrdersTable = () => {
         },
     ];
 
+    const [animate, setAnimate] = useState('');
+
+    useEffect(() => {
+        const animationDirection = sessionStorage.getItem('animationDirection');
+        console.log(animationDirection); // Check the value of animationDirection
+        if (animationDirection) {
+            setAnimate(animationDirection);
+            sessionStorage.removeItem('animationDirection');
+        }
+    }, []);
+
     return (
-        <div class="animate__animated animate__backInUp">
+        <div className={`animate__animated ${animate}`}>
             <>
                 <Input.Search
                     placeholder="Tìm kiếm"

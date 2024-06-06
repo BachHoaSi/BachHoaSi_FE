@@ -1,4 +1,7 @@
-import { LockOutlined, MailOutline, PersonOutline } from '@mui/icons-material';
+import {
+    GitHub,
+    LockOutlined, MailOutline, PersonOutline
+} from '@mui/icons-material';
 import {
     AppBar,
     Avatar,
@@ -22,8 +25,19 @@ const theme = createTheme();
 const Header = () => (
     <AppBar position="static" sx={{ bgcolor: 'rgba(0, 0, 0, 0.65)' }}>
         <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'white' }}>
-                Bach Hoa Si
+            <Typography
+                variant="h6"
+                component="div"
+                sx={{
+                    flexGrow: 1,
+                    color: 'white',
+                    fontFamily: 'Black Ops One',
+                    fontSize: '2rem'
+                }}
+            >
+                <Link href="/admin/dashboard" underline="none">
+                    Bach Hoa Si
+                </Link>
             </Typography>
             <Link href="/login" color="inherit" underline="none" sx={{ mr: 2 }}>
                 Login
@@ -107,11 +121,23 @@ const RegisterPage = () => {
                         }}
                     >
                         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                            <PersonOutline />
+                            <GitHub />
                         </Avatar>
-                        <Typography component="h1" variant="h5">
-                            Sign Up
+                        <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{
+                                flexGrow: 1,
+                                color: 'white',
+                                fontFamily: 'Black Ops One',
+                                fontSize: '1.5rem'
+                            }}
+                        >
+                            <Link href="/admin/dashboard" underline="none">
+                                Bach Hoa Si
+                            </Link>
                         </Typography>
+                        <Typography component="p">Nền tảng phân phối hàng hóa lớn nhất thế giới</Typography>
 
                         <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit}>
                             <TextField
@@ -120,7 +146,7 @@ const RegisterPage = () => {
                                 required
                                 fullWidth
                                 id="username"
-                                label="Username"
+                                label="Tên đăng nhập"
                                 name="username"
                                 autoComplete="username"
                                 autoFocus
@@ -157,7 +183,7 @@ const RegisterPage = () => {
                                 required
                                 fullWidth
                                 name="password"
-                                label="Password"
+                                label="Mật khẩu"
                                 type="password"
                                 id="password"
                                 autoComplete="current-password"
@@ -176,7 +202,7 @@ const RegisterPage = () => {
                                 required
                                 fullWidth
                                 name="confirmPassword"
-                                label="Confirm Password"
+                                label="Xác nhận mật khẩu"s
                                 type="password"
                                 id="confirmPassword"
                                 autoComplete="current-password"
