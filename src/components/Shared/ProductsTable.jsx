@@ -29,8 +29,8 @@ for (let i = 1; i <= 50; i++) {
         id: `P${i.toString().padStart(3, '0')}`,
         name: productNames[Math.floor(Math.random() * productNames.length)],
         image: imageUrls[Math.floor(Math.random() * imageUrls.length)],
-        quantity: Math.floor(Math.random() * 50) + 1, // Số lượng từ 1 đến 50
-        price: (Math.random() * 100).toFixed(2), // Giá từ 0.00 đến 99.99
+        quantity: Math.floor(Math.random() * 50) + 1,
+        price: (Math.random() * 100).toFixed(2),
     };
     data.push({
         key: i.toString(),
@@ -72,13 +72,13 @@ const OrdersTable = () => {
         {
             title: 'Quantity',
             dataIndex: ['product', 'quantity'],
-            key: 'product.quantity', // Thêm key
+            key: 'product.quantity',
         },
         {
             title: 'Price',
             dataIndex: ['product', 'price'],
-            key: 'product.price', // Thêm key
-            render: (price) => `$${parseFloat(price).toFixed(2) || '0.00'}`, // Ép kiểu về số trước khi format
+            key: 'product.price',
+            render: (price) => `$${parseFloat(price).toFixed(2) || '0.00'}`,
         },
         {
             title: 'Action',
@@ -102,7 +102,7 @@ const OrdersTable = () => {
 
     useEffect(() => {
         const animationDirection = sessionStorage.getItem('animationDirection');
-        console.log(animationDirection); // Check the value of animationDirection
+        console.log(animationDirection);
         if (animationDirection) {
             setAnimate(animationDirection);
             sessionStorage.removeItem('animationDirection');

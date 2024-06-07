@@ -1,10 +1,10 @@
-import { DeleteOutlined, DownOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Empty, Space } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Empty, Space } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchableTable from '../Functions/SearchableTable';
 
 const data = [];
-
 
 const statusOptions = ['Pending', 'Processing', 'Completed', 'Canceled'];
 const customerNames = [
@@ -19,9 +19,9 @@ const customerSurnames = [
 ];
 
 for (let i = 1; i <= 50; i++) {
-    const orderId = `10${i.toString().padStart(2, '0')}`; // Đảm bảo orderId luôn có 4 chữ số
+    const orderId = `10${i.toString().padStart(2, '0')}`;
     const customer = `${customerNames[Math.floor(Math.random() * customerNames.length)]} ${customerSurnames[Math.floor(Math.random() * customerSurnames.length)]}`;
-    const price = Math.floor(Math.random() * 300) + 50 + (Math.random() * 100).toFixed(2); // Giá từ 50.00 đến 350.00
+    const price = Math.floor(Math.random() * 300) + 50 + (Math.random() * 100).toFixed(2);
     const status = statusOptions[Math.floor(Math.random() * statusOptions.length)];
     const year = 2023;
     const month = Math.floor(Math.random() * 12) + 1;
@@ -30,7 +30,7 @@ for (let i = 1; i <= 50; i++) {
 
     let deliveryAt = new Date(createdAt);
     deliveryAt.setDate(deliveryAt.getDate() + Math.floor(Math.random() * 30));
-    deliveryAt = deliveryAt.toISOString().slice(0, 10); // Lấy ngày ở định dạng YYYY-MM-DD
+    deliveryAt = deliveryAt.toISOString().slice(0, 10);
 
     data.push({
         key: i.toString(),
@@ -49,10 +49,12 @@ const OrdersTable = () => {
     const [filteredInfo, setFilteredInfo] = useState({});
     const searchInput = useRef(null);
     const [filteredData, setFilteredData] = useState(data);
+    const navigate = useNavigate();
 
     const handleCreateOrder = () => {
         console.log('Create Order clicked!');
     };
+
     const handleChange = (pagination, filters, sorter) => {
         setFilteredInfo(filters);
         const filteredStatus = filters.status || null;
@@ -65,6 +67,11 @@ const OrdersTable = () => {
         }
 
         setFilteredData(filteredData);
+    };
+
+    const handleRowClick = (record) => {
+        // navigate(`/admin/orders/${record.orderId}`);
+        navigate(`/admin/order/123`);
     };
 
     const columns = [
@@ -112,44 +119,13 @@ const OrdersTable = () => {
             key: 'createdAt',
             width: '20%',
         },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="middle">
-                    <Dropdown
-                        menu={{
-                            items: [
-                                {
-                                    key: 'edit',
-                                    label: 'Edit',
-                                    icon: <EditOutlined />,
-                                    onClick: () => console.log('Edit', record),
-                                },
-                                {
-                                    key: 'delete',
-                                    label: 'Delete',
-                                    icon: <DeleteOutlined />,
-                                    danger: true,
-                                    onClick: () => console.log('Delete', record),
-                                },
-                            ],
-                        }}
-                    >
-                        <a onClick={(e) => e.preventDefault()}>
-                            More actions <DownOutlined />
-                        </a>
-                    </Dropdown>
-                </Space>
-            ),
-        },
     ];
 
     const [animate, setAnimate] = useState('');
 
     useEffect(() => {
         const animationDirection = sessionStorage.getItem('animationDirection');
-        console.log(animationDirection); // Check the value of animationDirection
+        console.log(animationDirection);
         if (animationDirection) {
             setAnimate(animationDirection);
             sessionStorage.removeItem('animationDirection');
@@ -158,18 +134,23 @@ const OrdersTable = () => {
 
     return (
         <div className={`animate__animated ${animate}`}>
-            <div>
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateOrder}>
+            <Space style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }} >
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateOrder} >
                     Tạo đơn hàng
                 </Button>
+            </Space>
+            <div>
                 <SearchableTable
                     data={filteredData.length > 0 ? filteredData : data}
                     columns={columns}
                     searchInputProps={{
-                        style: { display: 'none' }, // Ẩn thanh tìm kiếm trong SearchableTable
+                        style: { display: 'none' },
                     }}
                     tableProps={{
                         onChange: handleChange,
+                        onRow: (record) => ({
+                            onClick: () => handleRowClick(record),
+                        }),
                         locale: { emptyText: <Empty description="Không tìm thấy dữ liệu" /> },
                     }}
                 />

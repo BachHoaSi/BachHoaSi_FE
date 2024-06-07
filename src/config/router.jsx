@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
 import AdminDashboard from "../components/Shared/ChartDashboard";
+import CustomerDetailsPage from "../components/Shared/CustomerDetail";
 import CustomersTable from "../components/Shared/CustomersTable";
 import OrderDetailsPage from "../components/Shared/OrderDetail";
 import OrdersTable from "../components/Shared/OrdersTable";
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
             {
                 path: "customers",
                 element: <CustomersTable />,
+            },
+            {
+                path: "customer/123",
+                element: <CustomerDetailsPage />,
             },
             {
                 path: "products",
