@@ -3,6 +3,7 @@ import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
 import AdminDashboard from "../components/Shared/ChartDashboard";
 import CustomersTable from "../components/Shared/CustomersTable";
+import OrderDetailsPage from "../components/Shared/OrderDetail";
 import OrdersTable from "../components/Shared/OrdersTable";
 import ProductsTable from "../components/Shared/ProductsTable";
 import AdminPage from "../pages/AdminPage";
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
                 element: <OrdersTable />,
             },
             {
+                path: "order/123",
+                element: <OrderDetailsPage />,
+            },
+            {
                 path: "customers",
                 element: <CustomersTable />,
             },
@@ -36,10 +41,6 @@ export const router = createBrowserRouter([
                 path: "products",
                 element: <ProductsTable />,
             },
-            // {
-            //     path: "shipping",
-            //     element: <Shipping />,
-            // },
             {
                 path: "staff",
                 element: <StaffsTable />,
