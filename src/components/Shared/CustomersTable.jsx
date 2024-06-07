@@ -1,6 +1,6 @@
 import { DeleteOutlined, DownOutlined, EditOutlined } from '@ant-design/icons';
 import { Dropdown, Space } from 'antd';
-import { React, useEffect } from 'react';
+import { React, useEffect, useState } from 'react';
 import SearchableTable from '../Functions/SearchableTable';
 
 const data = [
@@ -54,16 +54,6 @@ const data = [
     },
 ];
 
-const [animate, setAnimate] = useState('');
-
-useEffect(() => {
-    const animationDirection = sessionStorage.getItem('animationDirection');
-    console.log(animationDirection); // Check the value of animationDirection
-    if (animationDirection) {
-        setAnimate(animationDirection);
-        sessionStorage.removeItem('animationDirection');
-    }
-}, []);
 
 
 const CustomersTable = () => {
