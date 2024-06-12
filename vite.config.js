@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react()],
   server: {
-    open: '/admin/dashboard', // Đặt đường dẫn mặc định khi mở trên server
+    port: 3000,
+    open: '/admin/dashboard',
   },
 });

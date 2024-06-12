@@ -1,11 +1,11 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { faker } from '@faker-js/faker';
-import { Button, Select, Space, Tag } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import { Button, Form, Input, Modal, Select, Space, Switch, Table, Tag } from 'antd';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SearchableTable from '../Functions/SearchableTable';
 
 const { Option } = Select;
+const { Search } = Input;
 
 const rankOptions = ['Member', 'Gold', 'Platinum'];
 const numberOfCustomers = 50;
@@ -19,6 +19,7 @@ const generateData = () => {
             age: faker.datatype.number({ min: 18, max: 65 }),
             address: faker.address.streetAddress(),
             rank: rankOptions[Math.floor(Math.random() * rankOptions.length)],
+            status: Math.random() > 0.5 ? 'Active' : 'Disabled',
         });
     }
     return data;
@@ -26,53 +27,87 @@ const generateData = () => {
 
 const CustomersTable = () => {
     const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
     const [filteredInfo, setFilteredInfo] = useState({});
-    const searchInput = useRef(null);
-    const [filteredData, setFilteredData] = useState(generateData());
+    const [data, setData] = useState(generateData());
+    const [filteredData, setFilteredData] = useState(data);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [selectedRank, setSelectedRank] = useState('All');
 
+    const [form] = Form.useForm();
     const navigate = useNavigate();
 
-    const [selectedRank, setSelectedRank] = useState('All'); // State để lưu rank được chọn
-
-    const handleChange = (pagination, filters, sorter) => {
-        setFilteredInfo(filters);
-
-        // Lọc dữ liệu theo rank đã chọn
-        let newData = generateData();
-        if (selectedRank !== 'All') {
-            newData = newData.filter(item => item.rank === selectedRank);
-        }
-
-        setFilteredData(newData);
-    };
-
-    const handleCreateOrder = () => {
+    const handleCreateCustomer = () => {
         console.log('Create Customer clicked!');
     }
+
     const handleRankChange = (value) => {
-        setSelectedRank(value); // Cập nhật rank được chọn
-        handleChange(null, null, null); // Gọi lại handleChange để lọc dữ liệu
+        setSelectedRank(value);
+        handleFilterData(value, searchText);
     };
 
-    useEffect(() => {
-        const animationDirection = sessionStorage.getItem('animationDirection');
-        console.log(animationDirection);
-        if (animationDirection) {
-            setAnimate(animationDirection);
-            sessionStorage.removeItem('animationDirection');
+    const handleFilterData = (rank, searchText) => {
+        let filteredData = data;
+        if (rank !== 'All') {
+            filteredData = filteredData.filter(item => item.rank === rank);
         }
-    }, []);
+        if (searchText) {
+            filteredData = filteredData.filter(item =>
+                item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                item.address.toLowerCase().includes(searchText.toLowerCase())
+            );
+        }
+        setFilteredData(filteredData);
+    };
+
+    const handleSearch = (value) => {
+        setSearchText(value);
+        handleFilterData(selectedRank, value);
+    };
+
+    const handleEditCustomer = (record) => {
+        setSelectedCustomer(record);
+        form.setFieldsValue({
+            name: record.name,
+            age: record.age,
+            address: record.address,
+            rank: record.rank,
+            status: record.status === 'Active',
+        });
+        setIsModalVisible(true);
+    };
+
+    const handleModalOk = () => {
+        form.submit();
+    };
+
+    const handleModalCancel = () => {
+        setIsModalVisible(false);
+        setSelectedCustomer(null);
+    };
+
+    const handleFormSubmit = (values) => {
+        const updatedCustomer = {
+            ...selectedCustomer,
+            ...values,
+            status: values.status ? 'Active' : 'Disabled',
+        };
+        const newData = data.map(item => item.key === updatedCustomer.key ? updatedCustomer : item);
+        setData(newData);
+        handleFilterData(selectedRank, searchText);
+        setIsModalVisible(false);
+        setSelectedCustomer(null);
+    };
 
     const columns = [
-        { title: 'Name', dataIndex: 'name', key: 'name', width: '30%' },
-        { title: 'Age', dataIndex: 'age', key: 'age', width: '20%' },
+        { title: 'Name', dataIndex: 'name', key: 'name', width: '20%' },
+        { title: 'Age', dataIndex: 'age', key: 'age', width: '10%' },
         { title: 'Address', dataIndex: 'address', key: 'address' },
         {
             title: 'Rank',
             dataIndex: 'rank',
             key: 'rank',
-            width: '20%',
+            width: '10%',
             render: (rank) => (
                 <Tag color={rank === 'Member' ? 'default' : rank === 'Gold' ? 'gold' : 'cyan'}>
                     {rank}
@@ -82,27 +117,80 @@ const CustomersTable = () => {
             filterMultiple: false,
             onFilter: (value, record) => record.rank === value,
         },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            width: '10%',
+            render: (status) => (
+                <Tag color={status === 'Active' ? 'green' : 'volcano'}>
+                    {status}
+                </Tag>
+            ),
+        },
     ];
 
-    const [animate, setAnimate] = useState('');
-
     return (
-        <div className={`animate__animated ${animate}`}>
+        <div className="animate__animated animate__fadeIn">
             <Space style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }} >
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateOrder} >
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateCustomer} >
                     Add New Customer
                 </Button>
             </Space>
-            <SearchableTable
-                data={filteredData}
+            <Space style={{ marginBottom: 16, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                <Select defaultValue="All" style={{ width: 200 }} onChange={handleRankChange}>
+                    <Option value="All">All</Option>
+                    {rankOptions.map(rank => <Option key={rank} value={rank}>{rank}</Option>)}
+                </Select>
+                <Search
+                    placeholder="Search customers"
+                    onSearch={handleSearch}
+                    onChange={e => handleSearch(e.target.value)}
+                    style={{ width: 300, marginLeft: 'auto' }}
+                />
+            </Space>
+            <Table
                 columns={columns}
-                tableProps={{
-                    onRow: (record) => ({
-                        // onClick: () => navigate(`/admin/customers/${record.key}`),
-                        onClick: () => navigate(`/admin/customer/123`),
-                    }),
-                }}
+                dataSource={filteredData}
+                onRow={(record) => ({
+                    onClick: () => handleEditCustomer(record),
+                })}
+                pagination={{ pageSize: 7 }}
             />
+            <Modal
+                title="Edit Customer"
+                visible={isModalVisible}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
+                footer={[
+                    <Button key="back" onClick={handleModalCancel}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleModalOk}>
+                        Save
+                    </Button>,
+                ]}
+            >
+                <Form form={form} onFinish={handleFormSubmit} layout="vertical">
+                    <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please enter the name' }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="age" label="Age" rules={[{ required: true, message: 'Please enter the age' }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Please enter the address' }]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="rank" label="Rank" rules={[{ required: true, message: 'Please select a rank' }]}>
+                        <Select>
+                            {rankOptions.map(rank => <Option key={rank} value={rank}>{rank}</Option>)}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item name="status" label="Status" valuePropName="checked">
+                        <Switch checkedChildren="Active" unCheckedChildren="Disabled" />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

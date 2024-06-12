@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import StaffDetailsPage from "../components/Admin/StaffDetail";
 import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
 import AdminDashboard from "../components/Shared/ChartDashboard";
@@ -6,6 +7,7 @@ import CustomerDetailsPage from "../components/Shared/CustomerDetail";
 import CustomersTable from "../components/Shared/CustomersTable";
 import OrderDetailsPage from "../components/Shared/OrderDetail";
 import OrdersTable from "../components/Shared/OrdersTable";
+import ProductDetailsPage from "../components/Shared/ProductDetail";
 import ProductsTable from "../components/Shared/ProductsTable";
 import AdminPage from "../pages/AdminPage";
 import LoginPage from "../pages/LoginPage";
@@ -31,7 +33,7 @@ export const router = createBrowserRouter([
                 element: <OrdersTable />,
             },
             {
-                path: "order/123",
+                path: "orders/:ordersId",
                 element: <OrderDetailsPage />,
             },
             {
@@ -39,7 +41,7 @@ export const router = createBrowserRouter([
                 element: <CustomersTable />,
             },
             {
-                path: "customer/123",
+                path: "customers/:customerId",
                 element: <CustomerDetailsPage />,
             },
             {
@@ -47,8 +49,16 @@ export const router = createBrowserRouter([
                 element: <ProductsTable />,
             },
             {
+                path: "products/:productId",
+                element: <ProductDetailsPage />,
+            },
+            {
                 path: "staff",
                 element: <StaffsTable />,
+            },
+            {
+                path: "staffs/:staffId",
+                element: <StaffDetailsPage />,
             },
             {
                 path: "*",

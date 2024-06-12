@@ -21,6 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,7 +71,6 @@ const Footer = () => (
   </Box>
 );
 
-
 const LoginPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -81,31 +81,20 @@ const LoginPage = () => {
     const username = formData.get('username');
     const password = formData.get('password');
 
-    if (username === 'admin@123' && password === 'admin@123') {
-      console.log("Login successful!");
-      navigate('/admin/dashboard');
-    } else {
-      setError("Invalid username or password.");
-    }
-
-    // Commented out API call 
-    /*
     try {
-      const response = await fetch('/your-login-endpoint', { 
-        method: 'POST',
-        body: formData,
+      const response = await axios.post('https://api.fams.college/api/v1/auth/authentication', {
+        username,
+        password,
       });
 
-      if (response.ok) {
-        console.log("Login successful!");
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || "An error occurred during login.");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again later.");
+      const { accessToken } = response.data.data;
+      sessionStorage.setItem('token', accessToken);
+      console.log('Login success:', response);
+
+    } catch (error) {
+      setError("Invalid username or password.");
+      console.error('Login error:', error);
     }
-    */
   };
 
   return (
