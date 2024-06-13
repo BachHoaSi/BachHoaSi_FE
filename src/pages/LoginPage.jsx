@@ -90,7 +90,7 @@ const LoginPage = () => {
       const { accessToken } = response.data.data;
       sessionStorage.setItem('token', accessToken);
       console.log('Login success:', response);
-
+      navigate('/admin/dashboard');
     } catch (error) {
       setError("Invalid username or password.");
       console.error('Login error:', error);

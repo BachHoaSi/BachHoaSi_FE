@@ -6,59 +6,69 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { storage } from "../../config/firebase";
 
-const productNames = [
-    "Gấu Bông Capybara",
-    "Gấu Bông Khủng Long",
-    "Gấu Bông Kỳ Lân",
-    "Gấu Bông Mèo Thần Tài",
-    "Gấu Bông Stitch",
-    "Gấu Bông Thỏ Cony",
-    "Gấu Bông Totoro",
-    "Gấu Bông We Bare Bears",
-    "Gối Ôm Hình Trái Tim",
-    "Gối Ôm Hình Chữ U",
-];
-
-const imageUrls = [
-    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
-    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
-    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
-    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
-    "https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898",
-];
-
-const initialData = [];
-for (let i = 1; i <= 50; i++) {
-    const product = {
-        id: `P${i.toString().padStart(3, '0')}`,
-        name: productNames[Math.floor(Math.random() * productNames.length)],
-        image: imageUrls[Math.floor(Math.random() * imageUrls.length)],
-        quantity: Math.floor(Math.random() * 50) + 1,
-        price: (Math.random() * 100).toFixed(2),
-    };
-    initialData.push({
-        key: i.toString(),
-        product,
-    });
-}
-
 const ProductsTable = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState([]);
-    const [data, setData] = useState(initialData);
-    const [filteredData, setFilteredData] = useState(initialData);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 10,
+    });
+    const [searchParams, setSearchParams] = useState({
+        name: '',
+        description: '',
+    });
     const [selectedProduct, setSelectedProduct] = useState(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        fetchData();
+    }, [pagination.current, pagination.pageSize, searchParams]);
+
+    const fetchData = async () => {
+        setLoading(true);
+        const { current, pageSize } = pagination;
+        const { name, description } = searchParams;
+        try {
+            const response = await axios.get(`https://api.fams.college/api/v1/products/search`, {
+                params: {
+                    page: current - 1,
+                    size: pageSize,
+                    sort: 'id',
+                    name,
+                    description,
+                },
+                headers: {
+                    authorization: 'Bearer ' + sessionStorage.getItem('token'),
+                },
+            });
+            setData(response.data.content.map((item, index) => ({
+                key: (current - 1) * pageSize + index + 1,
+                product: item,
+            })));
+            setPagination((prev) => ({
+                ...prev,
+                total: response.data.totalElements,
+            }));
+        } catch (error) {
+            message.error('Failed to fetch data. Please try again.');
+            console.error('Failed to fetch data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleTableChange = (pagination, filters, sorter) => {
+        setPagination(pagination);
+    };
+
     const handleSearch = (value) => {
-        const searchQuery = value.toLowerCase();
-        const filtered = data.filter((record) => {
-            return Object.values(record.product).some((field) =>
-                field.toString().toLowerCase().includes(searchQuery)
-            );
+        setSearchParams({
+            name: value,
+            description: value,
         });
-        setFilteredData(filtered);
     };
 
     const handleCreateProduct = () => {
@@ -74,10 +84,18 @@ const ProductsTable = () => {
         setIsModalVisible(false);
     };
 
-    const handleDelete = (key, event) => {
+    const handleDelete = async (key, event) => {
         event.stopPropagation();
-        setData(data.filter((item) => item.key !== key));
-        setFilteredData(filteredData.filter((item) => item.key !== key));
+        try {
+            const productToDelete = data.find(item => item.key === key);
+            await axios.delete(`https://api.fams.college/api/v1/products/${productToDelete.product.id}`, {
+                headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
+            });
+            fetchData();
+            message.success('Product deleted successfully');
+        } catch (error) {
+            message.error('Failed to delete product. Please try again.');
+        }
     };
 
     const uploadToFirebase = async (file) => {
@@ -135,36 +153,15 @@ const ProductsTable = () => {
             };
 
             if (selectedProduct) {
-                const updatedProduct = {
-                    ...selectedProduct,
-                    product: {
-                        ...selectedProduct.product,
-                        name: values.name,
-                        image: imageUrl,
-                        quantity: values.stockQuantity,
-                        price: values.basePrice.toFixed(2),
-                    },
-                };
-                setData(data.map(item => (item.key === updatedProduct.key ? updatedProduct : item)));
-                setFilteredData(filteredData.map(item => (item.key === updatedProduct.key ? updatedProduct : item)));
-            } else {
-                const response = await axios.post('https://api.fams.college/api/v1/products', requestBody, {
+                await axios.put(`https://api.fams.college/api/v1/products/${selectedProduct.product.id}`, requestBody, {
                     headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
                 });
-                console.log('Product created:', response.data);
-                const newProduct = {
-                    key: (data.length + 1).toString(),
-                    product: {
-                        id: `P${(data.length + 1).toString().padStart(3, '0')}`,
-                        name: values.name,
-                        image: imageUrl,
-                        quantity: values.stockQuantity,
-                        price: values.basePrice.toFixed(2),
-                    },
-                };
-                setData([...data, newProduct]);
-                setFilteredData([...data, newProduct]);
+            } else {
+                await axios.post('https://api.fams.college/api/v1/products', requestBody, {
+                    headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
+                });
             }
+            fetchData();
             setIsModalVisible(false);
             form.resetFields();
             setFileList([]);
@@ -226,19 +223,8 @@ const ProductsTable = () => {
         },
     ];
 
-    const [animate, setAnimate] = useState('');
-
-    useEffect(() => {
-        const animationDirection = sessionStorage.getItem('animationDirection');
-        console.log(animationDirection);
-        if (animationDirection) {
-            setAnimate(animationDirection);
-            sessionStorage.removeItem('animationDirection');
-        }
-    }, []);
-
     return (
-        <div className={`animate__animated ${animate}`}>
+        <div>
             <Space style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }} >
                 <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateProduct}>
                     Thêm sản phẩm mới
@@ -254,7 +240,10 @@ const ProductsTable = () => {
             />
             <Table
                 columns={columns}
-                dataSource={filteredData}
+                dataSource={data}
+                loading={loading}
+                onChange={handleTableChange}
+                pagination={pagination}
                 onRow={(record) => ({
                     onClick: () => {
                         setSelectedProduct(record);
@@ -271,12 +260,7 @@ const ProductsTable = () => {
                 locale={{
                     emptyText: <Empty description="Không tìm thấy dữ liệu" />,
                 }}
-                pagination={{
-                    pageSize: 7,
-                }}
             />
-
-
             <Modal
                 title={selectedProduct ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
                 visible={isModalVisible}
@@ -305,7 +289,6 @@ const ProductsTable = () => {
                     >
                         <Input />
                     </Form.Item>
-
                     <Form.Item
                         name="basePrice"
                         label="Giá"
@@ -313,7 +296,6 @@ const ProductsTable = () => {
                     >
                         <InputNumber min={0} />
                     </Form.Item>
-
                     <Form.Item
                         name="description"
                         label="Mô tả"
@@ -321,7 +303,6 @@ const ProductsTable = () => {
                     >
                         <Input.TextArea />
                     </Form.Item>
-
                     <Form.Item
                         name="stockQuantity"
                         label="Số lượng"
@@ -329,7 +310,6 @@ const ProductsTable = () => {
                     >
                         <InputNumber min={0} />
                     </Form.Item>
-
                     <Form.Item
                         name="categoryId"
                         label="Danh mục"
@@ -341,7 +321,6 @@ const ProductsTable = () => {
                             <Select.Option value="3">Tiêu Dùng</Select.Option>
                         </Select>
                     </Form.Item>
-
                     <Form.Item
                         name="image"
                         label="Hình ảnh"
