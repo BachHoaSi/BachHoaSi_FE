@@ -90,6 +90,7 @@ const ProductsTable = () => {
             const productToDelete = data.find(item => item.key === key);
             await axios.delete(`https://api.fams.college/api/v1/products/${productToDelete.product.id}`, {
                 headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
+
             });
             fetchData();
             message.success('Product deleted successfully');
@@ -154,11 +155,11 @@ const ProductsTable = () => {
 
             if (selectedProduct) {
                 await axios.put(`https://api.fams.college/api/v1/products/${selectedProduct.product.id}`, requestBody, {
-                    headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
+                    headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
                 });
             } else {
                 await axios.post('https://api.fams.college/api/v1/products', requestBody, {
-                    headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
+                    headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
                 });
             }
             fetchData();
