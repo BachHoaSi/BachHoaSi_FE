@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Empty, Space } from 'antd';
+import { Button, DatePicker, Empty, Form, Input, Modal, Select, Space } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchableTable from '../Functions/SearchableTable';
@@ -50,9 +50,28 @@ const OrdersTable = () => {
     const searchInput = useRef(null);
     const [filteredData, setFilteredData] = useState(data);
     const navigate = useNavigate();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [form] = Form.useForm();
 
     const handleCreateOrder = () => {
-        console.log('Create Order clicked!');
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        form.submit();
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
+    const onFinish = (values) => {
+        console.log('Success:', values);
+        setIsModalVisible(false);
+    };
+
+    const onFinishFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
     };
 
     const handleChange = (pagination, filters, sorter) => {
@@ -70,8 +89,7 @@ const OrdersTable = () => {
     };
 
     const handleRowClick = (record) => {
-        // navigate(`/admin/orders/${record.orderId}`);
-        navigate(`/admin/order/123`);
+        navigate(`/admin/orders/123`);
     };
 
     const columns = [
@@ -144,7 +162,10 @@ const OrdersTable = () => {
                     data={filteredData.length > 0 ? filteredData : data}
                     columns={columns}
                     searchInputProps={{
-                        style: { display: 'none' },
+                        placeholder: 'Search Orders',
+                        style: { marginBottom: 8, display: 'block' },
+                        onChange: (e) => setSearchText(e.target.value),
+                        ref: searchInput,
                     }}
                     tableProps={{
                         onChange: handleChange,
@@ -154,8 +175,37 @@ const OrdersTable = () => {
                         locale: { emptyText: <Empty description="Không tìm thấy dữ liệu" /> },
                     }}
                 />
-
             </div>
+            <Modal
+                title="Tạo đơn hàng mới"
+                open={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Hủy
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={handleOk}>
+                        Tạo
+                    </Button>,
+                ]}
+            >
+                <Form form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                    <Form.Item name="customerName" label="Tên khách hàng" rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng!' }]}>
+                        <Input />
+                    </Form.Item>
+
+                    <Form.Item name="products" label="Sản phẩm" rules={[{ required: true, message: 'Vui lòng chọn sản phẩm!' }]}>
+                        <Select mode="multiple" placeholder="Chọn sản phẩm">
+                            {/* Render các option sản phẩm ở đây */}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item name="deliveryDate" label="Ngày giao hàng" rules={[{ required: true, message: 'Vui lòng chọn ngày giao hàng!' }]}>
+                        <DatePicker />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

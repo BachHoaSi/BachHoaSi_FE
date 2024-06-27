@@ -1,6 +1,7 @@
 import { DeleteOutlined, DownOutlined, EditOutlined } from '@ant-design/icons';
 import { Dropdown, Space } from 'antd';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchableTable from '../Functions/SearchableTable';
 
 const data = [
@@ -108,11 +109,20 @@ const StaffsTable = () => {
         },
     ];
 
+
+    const navigate = useNavigate();
+
     return (
         <div class="animate__animated animate__backInUp">
             <SearchableTable
                 data={data}
                 columns={columns}
+                tableProps={{
+                    onRow: (record) => ({
+                        // onClick: () => navigate(`/admin/customers/${record.key}`),
+                        onClick: () => navigate(`/admin/staffs/123`),
+                    }),
+                }}
             />
         </div>
     );
