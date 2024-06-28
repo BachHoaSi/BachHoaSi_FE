@@ -2,7 +2,7 @@ import { DeleteOutlined, InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Empty, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Upload, message } from 'antd';
 import axios from 'axios';
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { storage } from "../../config/firebase";
 
@@ -30,27 +30,24 @@ const ProductsTable = () => {
     const fetchData = async () => {
         setLoading(true);
         const { current, pageSize } = pagination;
-        const { name, description } = searchParams;
         try {
-            const response = await axios.get(`https://api.fams.college/api/v1/products/search`, {
+            const response = await axios.get(`https://api.fams.college/api/v1/products`, {
                 params: {
                     page: current - 1,
                     size: pageSize,
-                    sort: 'id',
-                    name,
-                    description,
                 },
                 headers: {
                     authorization: 'Bearer ' + sessionStorage.getItem('token'),
                 },
             });
-            setData(response.data.content.map((item, index) => ({
+            const { content, totalElements } = response.data.data;
+            setData(content.map((item, index) => ({
                 key: (current - 1) * pageSize + index + 1,
                 product: item,
             })));
             setPagination((prev) => ({
                 ...prev,
-                total: response.data.totalElements,
+                total: totalElements,
             }));
         } catch (error) {
             message.error('Failed to fetch data. Please try again.');
@@ -188,20 +185,20 @@ const ProductsTable = () => {
             key: 'product',
             render: (product) => (
                 <Space size="middle">
-                    <img src={product.image} alt={product.name} width={40} />
+                    <img src={product['url-image']} alt={product.name} width={40} />
                     <span>{product.name}</span>
                 </Space>
             ),
         },
         {
             title: 'Quantity',
-            dataIndex: ['product', 'quantity'],
-            key: 'product.quantity',
+            dataIndex: ['product', 'stock-quantity'],
+            key: 'product.stock-quantity',
         },
         {
             title: 'Price',
-            dataIndex: ['product', 'price'],
-            key: 'product.price',
+            dataIndex: ['product', 'base-price'],
+            key: 'product.base-price',
             render: (price) => `$${parseFloat(price).toFixed(2) || '0.00'}`,
         },
         {
@@ -249,9 +246,9 @@ const ProductsTable = () => {
                         setSelectedProduct(record);
                         form.setFieldsValue({
                             name: record.product.name,
-                            basePrice: parseFloat(record.product.price),
-                            stockQuantity: record.product.quantity,
-                            categoryId: record.product.categoryId,
+                            basePrice: parseFloat(record.product['base-price']),
+                            stockQuantity: record.product['stock-quantity'],
+                            categoryId: record.product['category-name'],
                             description: record.product.description,
                         });
                         setIsModalVisible(true);
