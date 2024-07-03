@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import StaffDetailsPage from "../components/Admin/StaffDetail";
 import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
+import CategoriesTable from "../components/Shared/CategoriesTable";
 import AdminDashboard from "../components/Shared/ChartDashboard";
 import OrderDetailsPage from "../components/Shared/OrderDetail";
 import OrdersTable from "../components/Shared/OrdersTable";
@@ -12,13 +13,12 @@ import StoresTable from "../components/Shared/StoresTable";
 import AdminPage from "../pages/AdminPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
-
-
+import PrivateRoute from "./PrivateRoute";
 
 export const router = createBrowserRouter([
     {
         path: "/admin",
-        element: <AdminPage />,
+        element: <PrivateRoute><AdminPage /></PrivateRoute>,
         children: [
             {
                 path: "",
@@ -61,6 +61,10 @@ export const router = createBrowserRouter([
                 element: <StaffDetailsPage />,
             },
             {
+                path: "categories",
+                element: <CategoriesTable />,
+            },
+            {
                 path: "*",
                 element: <NotFound />,
             }
@@ -79,3 +83,4 @@ export const router = createBrowserRouter([
         element: <RegisterPage />,
     }
 ]);
+
