@@ -26,6 +26,10 @@ const items = [
         label: 'Sign out',
         key: '2',
         icon: <UserOutlined />,
+        onClick: () => {
+            sessionStorage.removeItem('token');
+            window.location.reload(); // Reload the page after logout
+        }
     },
     // {
     //     label: '3rd menu item',

@@ -3,6 +3,7 @@ import {
     DeliveredProcedureOutlined,
     LineChartOutlined,
     ProductOutlined,
+    TagsOutlined,
     UserOutlined
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
@@ -29,6 +30,7 @@ const items = [
     getItem('Shipping', '4', <DeliveredProcedureOutlined />, '/admin/shipping'),
     getItem('Stores', '5', <UserOutlined />, '/admin/stores'),
     getItem('Staff', '6', <UserOutlined />, '/admin/staff'),
+    getItem('Categories', '7', <TagsOutlined />, '/admin/categories'),
 ];
 sessionStorage.setItem('sidebarItems', JSON.stringify(items));
 
