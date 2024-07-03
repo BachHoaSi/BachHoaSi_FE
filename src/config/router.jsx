@@ -3,12 +3,12 @@ import StaffDetailsPage from "../components/Admin/StaffDetail";
 import StaffsTable from "../components/Admin/StaffsTable";
 import NotFound from "../components/NotFound";
 import AdminDashboard from "../components/Shared/ChartDashboard";
-import CustomerDetailsPage from "../components/Shared/CustomerDetail";
-import CustomersTable from "../components/Shared/CustomersTable";
 import OrderDetailsPage from "../components/Shared/OrderDetail";
 import OrdersTable from "../components/Shared/OrdersTable";
 import ProductDetailsPage from "../components/Shared/ProductDetail";
 import ProductsTable from "../components/Shared/ProductsTable";
+import StoreDetailsPage from "../components/Shared/StoreDetail";
+import StoresTable from "../components/Shared/StoresTable";
 import AdminPage from "../pages/AdminPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
@@ -37,12 +37,12 @@ export const router = createBrowserRouter([
                 element: <OrderDetailsPage />,
             },
             {
-                path: "customers",
-                element: <CustomersTable />,
+                path: "stores",
+                element: <StoresTable />,
             },
             {
-                path: "customers/:customerId",
-                element: <CustomerDetailsPage />,
+                path: "stores/:storeId",
+                element: <StoreDetailsPage />,
             },
             {
                 path: "products",

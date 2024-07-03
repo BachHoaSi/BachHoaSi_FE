@@ -50,9 +50,9 @@ const topProducts = [
 ];
 
 const recentOrders = [
-    { id: 101, customer: 'John Doe', date: '2024-05-27', amount: 54.99 },
-    { id: 102, customer: 'Jane Smith', date: '2024-05-26', amount: 89.50 },
-    { id: 103, customer: 'Mike Johnson', date: '2024-05-25', amount: 125.20 },
+    { id: 101, store: 'John Doe', date: '2024-05-27', amount: 54.99 },
+    { id: 102, store: 'Jane Smith', date: '2024-05-26', amount: 89.50 },
+    { id: 103, store: 'Mike Johnson', date: '2024-05-25', amount: 125.20 },
 ];
 
 const transactionData = [
@@ -83,7 +83,7 @@ const Dashboard = () => {
 
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
-        { title: 'Customer', dataIndex: 'customer', key: 'customer' },
+        { title: 'Store', dataIndex: 'store', key: 'store' },
         { title: 'Date', dataIndex: 'date', key: 'date' },
         { title: 'Amount', dataIndex: 'amount', key: 'amount' },
     ];
@@ -123,7 +123,7 @@ const Dashboard = () => {
                     </Col>
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Customers" value={987} />
+                            <Statistic title="Total Stores" value={987} />
                         </Card>
                     </Col>
 

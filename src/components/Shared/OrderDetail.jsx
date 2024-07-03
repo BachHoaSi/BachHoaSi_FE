@@ -13,7 +13,7 @@ const generateMockOrderDetails = (orderId) => {
 
     return {
         orderId,
-        customer: faker.name.fullName(),
+        store: faker.name.fullName(),
         price: faker.finance.amount(50, 350, 2),
         status: faker.helpers.arrayElement(['Pending', 'Processing', 'Completed', 'Canceled']),
         createdAt: faker.date.past().toISOString().slice(0, 10),
@@ -48,7 +48,7 @@ const OrderDetailsPage = () => {
         return <div>Loading...</div>;
     }
 
-    const { customer, price, status, createdAt, deliveryAt, products, feedback, rating } = orderDetails;
+    const { store, price, status, createdAt, deliveryAt, products, feedback, rating } = orderDetails;
 
     const columns = [
         {
@@ -103,7 +103,7 @@ const OrderDetailsPage = () => {
                     <Col span={17}>
                         <StyledCard>
                             <Descriptions title="Thông tin đơn hàng" bordered column={2}>
-                                <Descriptions.Item label="Khách hàng">{customer}</Descriptions.Item>
+                                <Descriptions.Item label="Cửa Hàng">{store}</Descriptions.Item>
                                 <Descriptions.Item label="Tổng">{price} $</Descriptions.Item>
                                 <Descriptions.Item label="Trạng thái">
                                     <Tag color={status === 'Pending' ? 'orange' : status === 'Processing' ? 'blue' : status === 'Completed' ? 'green' : 'red'}>

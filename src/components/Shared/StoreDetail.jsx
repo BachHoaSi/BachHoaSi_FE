@@ -11,16 +11,16 @@ const GrayText = styled(Typography.Text)`
   border-radius: 4px; /* Bo góc nhẹ */
 `;
 
-const CustomerDetailsPage = () => {
-    const { customerId } = useParams();
+const StoreDetailsPage = () => {
+    const { storeId } = useParams();
     const navigate = useNavigate();
-    const [customerDetails, setCustomerDetails] = useState(null);
+    const [storeDetails, setstoreDetails] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [form] = Form.useForm();
 
     useEffect(() => {
         const mockData = {
-            id: customerId,
+            id: storeId,
             name: faker.name.fullName(),
             email: faker.internet.email(),
             phoneNumber: faker.phone.number(),
@@ -31,11 +31,11 @@ const CustomerDetailsPage = () => {
             avatar: faker.image.avatar(),
             rating: faker.datatype.number({ min: 1, max: 5 }),
         };
-        setCustomerDetails(mockData);
+        setstoreDetails(mockData);
         form.setFieldsValue(mockData);
-    }, [customerId, form]);
+    }, [storeId, form]);
 
-    if (!customerDetails) {
+    if (!storeDetails) {
         return <div>Loading...</div>;
     }
 
@@ -48,7 +48,7 @@ const CustomerDetailsPage = () => {
         totalOrders,
         totalSpending,
         avatar,
-    } = customerDetails;
+    } = storeDetails;
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -63,9 +63,9 @@ const CustomerDetailsPage = () => {
         console.log('Received values of form: ', values);
         setIsEditing(false);
 
-        // Cập nhật state customerDetails, chỉ thay đổi các trường được chỉnh sửa
-        setCustomerDetails({
-            ...customerDetails, // Giữ lại các thuộc tính khác của customerDetails
+        // Cập nhật state storeDetails, chỉ thay đổi các trường được chỉnh sửa
+        setstoreDetails({
+            ...storeDetails, // Giữ lại các thuộc tính khác của storeDetails
             ...values, // Cập nhật các giá trị mới từ form
         });
     };
@@ -123,7 +123,7 @@ const CustomerDetailsPage = () => {
                                 layout="vertical"
                                 form={form}
                                 onFinish={onFinish}
-                                initialValues={customerDetails}
+                                initialValues={storeDetails}
                             >
                                 <Form.Item label="Email" name="email">
                                     <Input prefix={<MailOutlined />}
@@ -174,4 +174,4 @@ const CustomerDetailsPage = () => {
     );
 };
 
-export default CustomerDetailsPage;
+export default StoreDetailsPage;

@@ -7,12 +7,12 @@ import SearchableTable from '../Functions/SearchableTable';
 const data = [];
 
 const statusOptions = ['Pending', 'Processing', 'Completed', 'Canceled'];
-const customerNames = [
+const storeNames = [
     'John', 'Jane', 'Alice', 'Bob', 'Charlie', 'Donna', 'Evan', 'Grace', 'Hank', 'Ivy',
     'Jack', 'Laura', 'Mike', 'Nancy', 'Oscar', 'Peter', 'Quinn', 'Ryan', 'Sarah', 'Tom',
     'Ursula', 'Victor', 'Wendy', 'Xavier', 'Yvonne', 'Zoe'
 ];
-const customerSurnames = [
+const storeSurnames = [
     'Doe', 'Smith', 'Johnson', 'Brown', 'Davis', 'Edwards', 'Frank', 'Hall', 'Isaac', 'Jones',
     'King', 'Lewis', 'Miller', 'Nichols', 'Owens', 'Parker', 'Quinn', 'Roberts', 'Taylor', 'Upton',
     'Vaughn', 'Williams', 'Xavier', 'Young', 'Zimmerman', 'Anderson'
@@ -20,7 +20,7 @@ const customerSurnames = [
 
 for (let i = 1; i <= 50; i++) {
     const orderId = `10${i.toString().padStart(2, '0')}`;
-    const customer = `${customerNames[Math.floor(Math.random() * customerNames.length)]} ${customerSurnames[Math.floor(Math.random() * customerSurnames.length)]}`;
+    const store = `${storeNames[Math.floor(Math.random() * storeNames.length)]} ${storeSurnames[Math.floor(Math.random() * storeSurnames.length)]}`;
     const price = Math.floor(Math.random() * 300) + 50 + (Math.random() * 100).toFixed(2);
     const status = statusOptions[Math.floor(Math.random() * statusOptions.length)];
     const year = 2023;
@@ -35,7 +35,7 @@ for (let i = 1; i <= 50; i++) {
     data.push({
         key: i.toString(),
         orderId,
-        customer,
+        store,
         price,
         status,
         createdAt,
@@ -100,9 +100,9 @@ const OrdersTable = () => {
             width: '10%',
         },
         {
-            title: 'Customer',
-            dataIndex: 'customer',
-            key: 'customer',
+            title: 'Store',
+            dataIndex: 'store',
+            key: 'store',
             width: '20%',
         },
         {
@@ -191,7 +191,7 @@ const OrdersTable = () => {
                 ]}
             >
                 <Form form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                    <Form.Item name="customerName" label="Tên khách hàng" rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng!' }]}>
+                    <Form.Item name="storeName" label="Tên khách hàng" rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng!' }]}>
                         <Input />
                     </Form.Item>
 

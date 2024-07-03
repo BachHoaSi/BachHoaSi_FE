@@ -27,7 +27,7 @@ const items = [
     getItem('Orders', '2', <AuditOutlined />, '/admin/orders'),
     getItem('Products', '3', <ProductOutlined />, '/admin/products'),
     getItem('Shipping', '4', <DeliveredProcedureOutlined />, '/admin/shipping'),
-    getItem('Customers', '5', <UserOutlined />, '/admin/customers'),
+    getItem('Stores', '5', <UserOutlined />, '/admin/stores'),
     getItem('Staff', '6', <UserOutlined />, '/admin/staff'),
 ];
 sessionStorage.setItem('sidebarItems', JSON.stringify(items));

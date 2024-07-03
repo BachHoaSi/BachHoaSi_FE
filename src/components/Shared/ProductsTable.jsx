@@ -1,10 +1,12 @@
 import { DeleteOutlined, InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Empty, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Upload, message } from 'antd';
-import axios from 'axios';
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { storage } from "../../config/firebase";
+import api from '../../services/api';
 
 const ProductsTable = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -17,27 +19,28 @@ const ProductsTable = () => {
         pageSize: 10,
     });
     const [searchParams, setSearchParams] = useState({
-        name: '',
-        description: '',
+        name: ''
     });
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchData();
+        fetchCategories();
     }, [pagination.current, pagination.pageSize, searchParams]);
 
     const fetchData = async () => {
         setLoading(true);
         const { current, pageSize } = pagination;
+        const queryParam = `name=${searchParams.name}&category-name=${selectedCategory}`;
         try {
-            const response = await axios.get(`https://api.fams.college/api/v1/products`, {
+            const response = await api.get(`/products`, {
                 params: {
                     page: current - 1,
                     size: pageSize,
-                },
-                headers: {
-                    authorization: 'Bearer ' + sessionStorage.getItem('token'),
+                    q: queryParam,
                 },
             });
             const { content, totalElements } = response.data.data;
@@ -49,11 +52,22 @@ const ProductsTable = () => {
                 ...prev,
                 total: totalElements,
             }));
+            // toast.success(response.data.message);
         } catch (error) {
-            message.error('Failed to fetch data. Please try again.');
+            toast.error('Failed to fetch data. Please try again.');
             console.error('Failed to fetch data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const response = await api.get('/categories/all');
+            setCategories(response.data.data.content);
+        } catch (error) {
+            message.error('Failed to fetch categories. Please try again.');
+            console.error('Failed to fetch categories:', error);
         }
     };
 
@@ -63,10 +77,11 @@ const ProductsTable = () => {
 
     const handleSearch = (value) => {
         setSearchParams({
-            name: value,
-            description: value,
+            name: value
         });
     };
+
+
 
     const handleCreateProduct = () => {
         setSelectedProduct(null);
@@ -85,13 +100,15 @@ const ProductsTable = () => {
         event.stopPropagation();
         try {
             const productToDelete = data.find(item => item.key === key);
-            await axios.delete(`https://api.fams.college/api/v1/products/${productToDelete.product.id}`, {
-                headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
-            });
+            const response = await api.delete(`/products?code=${productToDelete.product['product-code']}`);
             fetchData();
-            message.success('Product deleted successfully');
+            if (response.data && response.data.message) {
+                toast.success(response.data.message);
+            } else {
+                toast.success('Product deleted successfully');
+            }
         } catch (error) {
-            message.error('Failed to delete product. Please try again.');
+            toast.error('Failed to delete product. Please try again.');
         }
     };
 
@@ -147,16 +164,13 @@ const ProductsTable = () => {
                 'stock-quantity': values.stockQuantity,
                 'url-images': imageUrl,
                 'category-id': values.categoryId,
+
             };
 
             if (selectedProduct) {
-                await axios.put(`https://api.fams.college/api/v1/products/${selectedProduct.product.id}`, requestBody, {
-                    headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
-                });
+                await api.put(`/products?code=${selectedProduct.product['product-code']}`, requestBody);
             } else {
-                await axios.post('https://api.fams.college/api/v1/products', requestBody, {
-                    headers: { authorization: 'Bearer ' + sessionStorage.getItem('token') },
-                });
+                await api.post('/products', requestBody);
             }
             fetchData();
             setIsModalVisible(false);
@@ -174,10 +188,9 @@ const ProductsTable = () => {
 
     const columns = [
         {
-            title: 'ProductID',
-            dataIndex: ['product', 'id'],
-            key: 'product.id',
-            width: '15%',
+            title: 'Product Code',
+            dataIndex: ['product', 'product-code'],
+            key: 'product.product-code',
         },
         {
             title: 'Product Name',
@@ -191,6 +204,11 @@ const ProductsTable = () => {
             ),
         },
         {
+            title: 'Category',
+            dataIndex: ['product', 'category-name'],
+            key: 'product.category-name',
+        },
+        {
             title: 'Quantity',
             dataIndex: ['product', 'stock-quantity'],
             key: 'product.stock-quantity',
@@ -202,7 +220,7 @@ const ProductsTable = () => {
             render: (price) => `$${parseFloat(price).toFixed(2) || '0.00'}`,
         },
         {
-            title: 'Action',
+
             key: 'action',
             render: (_, record) => (
                 <Popconfirm
@@ -222,7 +240,20 @@ const ProductsTable = () => {
 
     return (
         <div>
-            <Space style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }} >
+            <ToastContainer />
+            <Space style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+                <Select
+                    defaultValue={selectedCategory}
+                    style={{ width: 200 }}
+                    onChange={(value) => setSelectedCategory(value)}
+                >
+                    <Select.Option value={''}>All Categories</Select.Option>
+                    {categories.map(category => (
+                        <Select.Option key={category.name} value={category.name}>
+                            {category.name}
+                        </Select.Option>
+                    ))}
+                </Select>
                 <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateProduct}>
                     Thêm sản phẩm mới
                 </Button>
@@ -231,8 +262,9 @@ const ProductsTable = () => {
                 placeholder="Tìm kiếm"
                 allowClear
                 enterButton="Search"
-                size="large"
+                size="medium"
                 onSearch={handleSearch}
+                onChange={e => handleSearch(e.target.value)}
                 style={{ marginBottom: 16 }}
             />
             <Table
@@ -248,7 +280,7 @@ const ProductsTable = () => {
                             name: record.product.name,
                             basePrice: parseFloat(record.product['base-price']),
                             stockQuantity: record.product['stock-quantity'],
-                            categoryId: record.product['category-name'],
+                            categoryId: record.product['category-id'],
                             description: record.product.description,
                         });
                         setIsModalVisible(true);
@@ -313,9 +345,11 @@ const ProductsTable = () => {
                         rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
                     >
                         <Select placeholder="Chọn danh mục">
-                            <Select.Option value="1">Nội Thất</Select.Option>
-                            <Select.Option value="2">Thực Phẩm</Select.Option>
-                            <Select.Option value="3">Tiêu Dùng</Select.Option>
+                            {categories.map(category => (
+                                <Select.Option key={category.id} value={category.id}>
+                                    {category.name}
+                                </Select.Option>
+                            ))}
                         </Select>
                     </Form.Item>
                     <Form.Item
@@ -342,3 +376,4 @@ const ProductsTable = () => {
 };
 
 export default ProductsTable;
+

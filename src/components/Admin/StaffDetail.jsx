@@ -1,4 +1,4 @@
-// src/pages/CustomerDetailsPage.jsx
+// src/pages/storeDetailsPage.jsx
 import { EnvironmentOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { faker } from '@faker-js/faker';
 import { Avatar, Card, Descriptions, Divider, Space, Tag, Typography } from 'antd';
@@ -6,13 +6,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const StaffDetailsPage = () => {
-    const { customerId } = useParams();
+    const { storeId } = useParams();
     const navigate = useNavigate();
-    const [customerDetails, setCustomerDetails] = useState(null);
+    const [storeDetails, setstoreDetails] = useState(null);
 
     useEffect(() => {
         const mockData = {
-            id: customerId,
+            id: storeId,
             name: faker.name.fullName(),
             email: faker.internet.email(),
             phoneNumber: faker.phone.number(),
@@ -23,10 +23,10 @@ const StaffDetailsPage = () => {
             avatar: faker.image.avatar(),
             rating: faker.datatype.number({ min: 1, max: 5 }),
         };
-        setCustomerDetails(mockData);
-    }, [customerId]);
+        setstoreDetails(mockData);
+    }, [storeId]);
 
-    if (!customerDetails) {
+    if (!storeDetails) {
         return <div>Loading...</div>;
     }
 
@@ -41,7 +41,7 @@ const StaffDetailsPage = () => {
         totalSpending,
         avatar,
         rating,
-    } = customerDetails;
+    } = storeDetails;
 
     return (
         <div style={{ padding: 24 }}>

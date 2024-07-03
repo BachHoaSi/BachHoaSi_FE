@@ -9,7 +9,7 @@ const breadcrumbNameMap = {
     '/admin/orders': 'Orders',
     '/admin/products': 'Products',
     '/admin/shipping': 'Shipping',
-    '/admin/customers': 'Customers',
+    '/admin/stores': 'Stores',
     '/admin/staff': 'Staffs',
 };
 
