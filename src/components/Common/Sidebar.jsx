@@ -1,7 +1,7 @@
 import {
     AuditOutlined,
-    DeliveredProcedureOutlined,
     LineChartOutlined,
+    MenuOutlined,
     ProductOutlined,
     TagsOutlined,
     UserOutlined
@@ -27,10 +27,11 @@ const items = [
     getItem('DashBoard', '1', <LineChartOutlined />, '/admin/dashboard'),
     getItem('Orders', '2', <AuditOutlined />, '/admin/orders'),
     getItem('Products', '3', <ProductOutlined />, '/admin/products'),
-    getItem('Shipping', '4', <DeliveredProcedureOutlined />, '/admin/shipping'),
-    getItem('Stores', '5', <UserOutlined />, '/admin/stores'),
-    getItem('Staff', '6', <UserOutlined />, '/admin/staff'),
+    getItem('Stores', '4', <UserOutlined />, '/admin/stores'),
+    getItem('Staff', '5', <UserOutlined />, '/admin/shipping'),
+    getItem('Shipper', '6', <UserOutlined />, '/admin/staff'),
     getItem('Categories', '7', <TagsOutlined />, '/admin/categories'),
+    getItem('Menu', '8', <MenuOutlined />, '/admin/settings'),
 ];
 sessionStorage.setItem('sidebarItems', JSON.stringify(items));
 
