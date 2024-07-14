@@ -1,6 +1,7 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
+  DatePicker,
   Empty,
   Form,
   Input,
@@ -12,15 +13,15 @@ import {
   Tag,
   message,
 } from "antd";
-import api from '../../services/api';
-import { UserOutlined } from '@ant-design/icons';
-import axios from "axios";
+import api from "../../services/api";
+import { UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-
+import moment from "moment/moment";
 const ShipperTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
+  const [rowDataSelect, setRowDataSelect] = useState(null);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -31,20 +32,35 @@ const ShipperTable = () => {
     fetchData();
   }, [pagination.current, pagination.pageSize]);
 
+  const VehicleType = {
+    MOTOR: "MOTOR",
+    CAR: "CAR",
+    TRUCK: "TRUCK",
+    VAN: "VAN",
+  };
+
+  // const ShippingStatus = {
+  //   WAITING_FOR_ORDER,
+  //   SHIPPING,
+  //   OFFLINE
+  // }
+  const ShippingStatus = {
+    "WAITING FOR ORDER": "WAITING_FOR_ORDER",
+    SHIPPING: "SHIPPING",
+    OFFLINE: "OFFLINE",
+  };
+
   const fetchData = async () => {
     setLoading(true);
     const { current, pageSize } = pagination;
     try {
-      const response = await api.get(
-        `shippers`,
-        {
-          params: {
-            page: current - 1,
-            size: pageSize,
-            q: "x",
-          },
-        }
-      );
+      const response = await api.get(`shippers`, {
+        params: {
+          page: current - 1,
+          size: pageSize,
+          q: "x",
+        },
+      });
       const { content, totalElements } = response.data.data;
       console.info(response.data.data);
       setData(
@@ -85,14 +101,7 @@ const ShipperTable = () => {
     event.stopPropagation();
     try {
       const staffToDelete = data.find((item) => item.key === key);
-      await axios.delete(
-        `https://api.fams.college/api/v1/shippers/${staffToDelete.staff.id}`,
-        {
-          headers: {
-            authorization: "Bearer " + sessionStorage.getItem("token"),
-          },
-        }
-      );
+      await api.delete(`shippers/${staffToDelete.staff.id}`);
       fetchData();
       message.success("Staff deleted successfully");
     } catch (error) {
@@ -100,20 +109,18 @@ const ShipperTable = () => {
     }
   };
 
-
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
 
-  const onFinish = () => {
-    
-  }
+  const onFinish = () => {};
+
+  const handleUpdateShipper = async () => {};
   const handleResetPassword = (userId) => {
     // Implement reset password logic here, e.g., using API call
     console.log(`Reset password for user ID: ${userId}`);
     // You might want to show a confirmation message, update the UI, etc.
   };
-
 
   const columns = [
     {
@@ -148,43 +155,46 @@ const ShipperTable = () => {
       key: "staff.status",
     },
     {
-        title: 'Active',
-        dataIndex: 'is-active',
-        key: 'is-active',
-        render: (isActive) => (
-          <Tag color={isActive ? 'green' : 'red'}>
-            {isActive ? 'Active' : 'Inactive'}
-          </Tag>
-        ),
-      },
-      {
-        title: 'Locked',
-        dataIndex: 'is-locked',
-        key: 'is-locked',
-        render: (isLocked) => (
-          <Tag color={isLocked ? 'red' : 'green'}>
-            {isLocked ? 'Locked' : 'Unlocked'}
-          </Tag>
-        ),
-      },
+      title: "Active",
+      dataIndex: "is-active",
+      key: "is-active",
+      render: (isActive) => (
+        <Tag color={isActive ? "green" : "red"}>
+          {isActive ? "Active" : "Inactive"}
+        </Tag>
+      ),
+    },
+    {
+      title: "Locked",
+      dataIndex: "is-locked",
+      key: "is-locked",
+      render: (isLocked) => (
+        <Tag color={isLocked ? "red" : "green"}>
+          {isLocked ? "Locked" : "Unlocked"}
+        </Tag>
+      ),
+    },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-        <Popconfirm
-          title="Are you sure to delete this record?"
-          onConfirm={() => handleDelete(record.key)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} onClick={(e) => e.stopPropagation()} />
-        </Popconfirm>
-        <Button type="link" onClick={() => handleResetPassword(record.id)}>
-          <UserOutlined />
-          Reset Password
-        </Button>
-      </Space>
+          <Popconfirm
+            title="Are you sure to delete this record?"
+            onConfirm={() => handleDelete(record.key)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <DeleteOutlined
+              style={{ color: "red", cursor: "pointer" }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Popconfirm>
+          <Button type="link" onClick={() => handleResetPassword(record.id)}>
+            <UserOutlined />
+            Reset Password
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -203,7 +213,7 @@ const ShipperTable = () => {
           icon={<PlusOutlined />}
           onClick={handleCreateStaff}
         >
-          Thêm nhân viên mới
+          Add New Shipper
         </Button>
       </Space>
       <Input.Search
@@ -219,22 +229,47 @@ const ShipperTable = () => {
         dataSource={data}
         loading={loading}
         onChange={handleTableChange}
+        onRow={(record) => ({
+          onClick: () => {
+            setRowDataSelect(record);
+            console.log(record);
+            form.setFieldsValue({
+              name: record.staff.name,
+              phone: record.staff.phone,
+              status: record.staff.status,
+              email: record.staff.email,
+              shippingStatus: record.staff["shipping-status"],
+              licenseNumber: record.staff["license-number"],
+              licenseIssueDate: moment(
+                record.staff["license-issue-date"],
+                "YYYY-MM-DD"
+              ),
+              idCardNumber: record.staff["id-card-number"],
+              idCardIssuePlace: record.staff["id-card-issue-place"],
+              idCardIssueDate: record.staff["id-card-issue-date"],
+              vehicleType: record.staff["vehicle-type"],
+              isActive: record.staff['is-active'],
+              isLocked: record.staff['is-locked']
+            });
+            setIsModalVisible(true);
+          },
+        })}
         pagination={pagination}
         locale={{
-          emptyText: <Empty description="Không tìm thấy dữ liệu" />,
+          emptyText: <Empty description="Not Found Any Data" />,
         }}
       />
       <Modal
-        title={"Thêm nhân viên mới"}
-        visible={isModalVisible}
+        title={"Update Shipper"}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={[
           <Button key="back" onClick={handleCancel}>
-            Hủy
+            Cancel
           </Button>,
           <Button key="submit" type="primary" onClick={handleOk}>
-            Thêm
+            Update
           </Button>,
         ]}
       >
@@ -278,16 +313,20 @@ const ShipperTable = () => {
             <Input />
           </Form.Item>
           <Form.Item
+            label="Shipping Status"
             name="shippingStatus"
-            label="Trạng thái giao hàng"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập trạng thái giao hàng!",
-              },
-            ]}
+            rules={[{ required: true, message: "Please select a role" }]}
           >
-            <Input />
+            <Select
+              defaultValue={ShippingStatus.SHIPPING}
+              placeholder="Select Shipping Status"
+            >
+              {Object.keys(ShippingStatus).map((roleKey) => (
+                <Option key={roleKey} value={ShippingStatus[roleKey]}>
+                  {ShippingStatus[roleKey].toUpperCase()}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="licenseNumber"
@@ -299,11 +338,21 @@ const ShipperTable = () => {
           <Form.Item
             name="licenseIssueDate"
             label="Ngày cấp giấy phép"
+            valuePropName={"date"}
+            getValueFromEvent={(onChange) =>
+              moment(onChange).format("YYYY-MM-DD")
+            }
+            getValueProps={(i) => ({ value: moment(i) })}
+            defaultValue={moment.now()}
             rules={[
               { required: true, message: "Vui lòng nhập ngày cấp giấy phép!" },
             ]}
           >
-            <Input />
+            <DatePicker
+              format="YYYY-MM-DD"
+              placeholder="YYYY-MM-DD"
+              allowClear={false}
+            />
           </Form.Item>
           <Form.Item
             name="idCardNumber"
@@ -322,20 +371,37 @@ const ShipperTable = () => {
           <Form.Item
             name="idCardIssueDate"
             label="Ngày cấp CMND"
+            valuePropName={"date"}
+            getValueFromEvent={(onChange) =>
+              moment(onChange).format("YYYY-MM-DD")
+            }
+            getValueProps={(i) => ({ value: moment(i) })}
+            defaultValue={moment.now()}
             rules={[
               { required: true, message: "Vui lòng nhập ngày cấp CMND!" },
             ]}
           >
-            <Input />
+            <DatePicker
+              format="YYYY-MM-DD"
+              placeholder="YYYY-MM-DD"
+              allowClear={false}
+            />
           </Form.Item>
           <Form.Item
+            label="Vehicle Type"
             name="vehicleType"
-            label="Loại phương tiện"
-            rules={[
-              { required: true, message: "Vui lòng nhập loại phương tiện!" },
-            ]}
+            rules={[{ required: true, message: "Please select a vehicle" }]}
           >
-            <Input />
+            <Select
+              defaultValue={VehicleType.CAR}
+              placeholder="Select Vehicle Type"
+            >
+              {Object.keys(VehicleType).map((roleKey) => (
+                <Option key={roleKey} value={VehicleType[roleKey]}>
+                  {VehicleType[roleKey].toUpperCase()}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="isActive"
