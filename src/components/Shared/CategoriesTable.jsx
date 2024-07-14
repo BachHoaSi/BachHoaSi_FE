@@ -1,17 +1,16 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Empty, Form, Input, Modal, Popconfirm, Select, Space, Table, message } from 'antd';
+import { Button, Empty, Form, Input, Modal, Popconfirm, Space, Table, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../../services/api';
 
-const { Option } = Select;
-const { Search } = Input;
 
 const CategoriesTable = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [form] = Form.useForm();
+    const [createForm] = Form.useForm();
     const [fileList, setFileList] = useState([]);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -23,7 +22,6 @@ const CategoriesTable = () => {
         name: ''
     });
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetchData();
@@ -68,21 +66,31 @@ const CategoriesTable = () => {
             name: value
         });
     };
-
-
-
-    const handleCreateCategory = () => {
-        setSelectedCategory(null);
-        setIsModalVisible(true);
-    };
-
-    const handleOk = () => {
-        form.submit();
-    };
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
+    
+    const handleCreateCategory = async (values) => {
+        const requestBody = {
+            name: values.name,
+            code: values.code,
+            description: values.description
+        }
+        const responseReturn = api.post('/categories', requestBody)
+        .then((response) => {
+            if (response.status === 200) {
+                const isSuccess = response.data.isSuccess;
+                if (isSuccess) {
+                    fetchData();
+                    toast.success('Add Content Success');
+                    createForm.resetFields();
+                    setIsCreateModalVisible(false);
+                }else {
+                    toast.error('Add Content Failed');
+                }
+            }
+        }).catch((err) => {
+            console.error(err);
+        });
+        return responseReturn;
+    }
 
     const handleDelete = async (key, event) => {
         event.stopPropagation();
@@ -90,17 +98,17 @@ const CategoriesTable = () => {
             const categoryToDelete = data.find(item => item.key === key);
             const response = await api.delete(`/categories/${categoryToDelete.category.id}`);
             fetchData();
-            if (response.data && response.data.message) {
-                toast.success(response.data.message);
-            } else {
+            if (response.data && response.data.isSuccess) {
                 toast.success('Category deleted successfully');
+            } else {
+                toast.error(response.data.message);
             }
         } catch (error) {
             toast.error('Failed to delete category. Please try again.');
         }
     };
 
-    const onFinish = async (values) => {
+    const onUpdateFinish = async (values) => {
         try {
             const requestBody = {
                 name: values.name,
@@ -108,17 +116,19 @@ const CategoriesTable = () => {
                 description: values.description,
             };
 
-            if (selectedCategory) {
-                await api.put(`/categories/${selectedCategory.category.id}`, requestBody);
+            const responseAxios = await api.put(`/categories/${selectedCategory.category.id}`, requestBody);
+            if (responseAxios.status === 200 && responseAxios.data.isSuccess) {
+                fetchData();
+                setIsModalVisible(false);
+                toast.success('Update Success');
+                form.resetFields();
+                setFileList([]);
             } else {
-                await api.post('/categories', requestBody);
-            }
-            fetchData();
-            setIsModalVisible(false);
-            form.resetFields();
-            setFileList([]);
+                toast.error(responseAxios.data.message);
+            }        
         } catch (error) {
             console.error('Failed to create or update category:', error);
+            toast.error("Error"); 
             message.error('Failed to create or update category. Please try again.');
         }
     };
@@ -171,7 +181,10 @@ const CategoriesTable = () => {
         <div>
             <ToastContainer />
             <Space style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateCategory}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+                    setSelectedCategory(null);
+                    setIsCreateModalVisible(true);
+                }}>
                     Thêm danh mục mới
                 </Button>
             </Space>
@@ -194,6 +207,7 @@ const CategoriesTable = () => {
                     onClick: () => {
                         setSelectedCategory(record);
                         form.setFieldsValue({
+                            id : record.category.id,
                             name: record.category.name,
                             code: record.category.code,
                             description: record.category.description,
@@ -206,26 +220,34 @@ const CategoriesTable = () => {
                 }}
             />
             <Modal
-                title={selectedCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
-                visible={isModalVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
+                title={'Edit Category'}
+                open={isModalVisible}
+                onOk={() => {
+                    form.submit();
+                }}
+                onCancel={() => {setIsModalVisible(false)}}
                 footer={[
-                    <Button key="back" onClick={handleCancel}>
-                        Hủy
+                    <Button key="back" onClick={() => {setIsModalVisible(false)}}>
+                        Cancel
                     </Button>,
-                    <Button key="submit" type="primary" onClick={handleOk}>
-                        {selectedCategory ? 'Chỉnh sửa' : 'Thêm'}
+                    <Button key="submit" type="primary" onClick={() => {form.submit();}}>
+                        {'Edit'}
                     </Button>,
                 ]}
             >
                 <Form
                     form={form}
-                    onFinish={onFinish}
+                    onFinish={onUpdateFinish}
                     onFinishFailed={onFinishFailed}
                     labelCol={{ span: 6 }}
                     wrapperCol={{ span: 18 }}
                 >
+                    <Form.Item
+                        name={"id"}
+                        label={"ID"}
+                    >
+                        <Input disabled></Input>
+                    </Form.Item>
                     <Form.Item
                         name="name"
                         label="Tên danh mục"
@@ -243,6 +265,53 @@ const CategoriesTable = () => {
                     <Form.Item
                         name="description"
                         label="Mô tả"
+                        rules={[{ required: true, message: 'Vui lòng nhập mô tả danh mục!' }]}
+                    >
+                        <Input.TextArea />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            <Modal
+            title={'Add New Category'}
+            open={isCreateModalVisible}
+            onCancel={() => {
+                setIsCreateModalVisible(false);
+            }}
+            onOk={() => {createForm.submit()}}
+            footer={[
+                <Button key="back" onClick={() => {setIsCreateModalVisible(false)}}>
+                    Cancel
+                </Button>,
+                <Button key="submit" type="primary" onClick={() => {createForm.submit();}}>
+                    {'Create'}
+                </Button>,
+            ]}
+            >
+                <Form
+                    form={createForm}
+                    onFinish={handleCreateCategory}
+                    onFinishFailed={onFinishFailed}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
+                >
+                    <Form.Item
+                        name="name"
+                        label="Category Name"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên danh mục!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="code"
+                        label="Category Code"
+                        rules={[{ required: true, message: 'Vui lòng nhập mã danh mục!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="description"
+                        label="Description"
                         rules={[{ required: true, message: 'Vui lòng nhập mô tả danh mục!' }]}
                     >
                         <Input.TextArea />

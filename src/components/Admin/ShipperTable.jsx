@@ -12,7 +12,8 @@ import {
   Tag,
   message,
 } from "antd";
-import { EditOutlined, UserOutlined } from '@ant-design/icons';
+import api from '../../services/api';
+import { UserOutlined } from '@ant-design/icons';
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -34,16 +35,13 @@ const ShipperTable = () => {
     setLoading(true);
     const { current, pageSize } = pagination;
     try {
-      const response = await axios.get(
-        `https://api.fams.college/api/v1/shippers`,
+      const response = await api.get(
+        `shippers`,
         {
           params: {
             page: current - 1,
             size: pageSize,
             q: "x",
-          },
-          headers: {
-            authorization: "Bearer " + sessionStorage.getItem("token"),
           },
         }
       );
