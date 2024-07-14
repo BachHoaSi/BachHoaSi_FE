@@ -314,7 +314,7 @@ const StoresTable = () => {
       />
       <Modal
         title={"Chỉnh sửa Store"}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
         footer={[

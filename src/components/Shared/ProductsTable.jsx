@@ -2,7 +2,6 @@ import { DeleteOutlined, InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Empty, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Upload, message } from 'antd';
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { storage } from "../../config/firebase";
@@ -10,7 +9,9 @@ import api from '../../services/api';
 
 const ProductsTable = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [form] = Form.useForm();
+    const [createForm] = Form.useForm();
     const [fileList, setFileList] = useState([]);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -24,7 +25,6 @@ const ProductsTable = () => {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [categories, setCategories] = useState([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetchData();
@@ -52,7 +52,6 @@ const ProductsTable = () => {
                 ...prev,
                 total: totalElements,
             }));
-            // toast.success(response.data.message);
         } catch (error) {
             toast.error('Failed to fetch data. Please try again.');
             console.error('Failed to fetch data:', error);
@@ -65,6 +64,7 @@ const ProductsTable = () => {
         try {
             const response = await api.get('/categories/all');
             setCategories(response.data.data.content);
+            console.log(response.data.data.content);
         } catch (error) {
             message.error('Failed to fetch categories. Please try again.');
             console.error('Failed to fetch categories:', error);
@@ -79,17 +79,6 @@ const ProductsTable = () => {
         setSearchParams({
             name: value
         });
-    };
-
-
-
-    const handleCreateProduct = () => {
-        setSelectedProduct(null);
-        setIsModalVisible(true);
-    };
-
-    const handleOk = () => {
-        form.submit();
     };
 
     const handleCancel = () => {
@@ -164,23 +153,44 @@ const ProductsTable = () => {
                 'stock-quantity': values.stockQuantity,
                 'url-images': imageUrl,
                 'category-id': values.categoryId,
-
             };
-
-            if (selectedProduct) {
-                await api.put(`/products?code=${selectedProduct.product['product-code']}`, requestBody);
-            } else {
-                await api.post('/products', requestBody);
-            }
+            await api.put(`/products?code=${selectedProduct.product['product-code']}`, requestBody);
             fetchData();
             setIsModalVisible(false);
             form.resetFields();
             setFileList([]);
+            toast.success('Update Success');
         } catch (error) {
             console.error('Failed to create or update product:', error);
             message.error('Failed to create or update product. Please try again.');
         }
     };
+
+    const onCreateProduct = async (values) => {
+        const imageUrl = fileList[0]?.url ?? 'https://down-vn.img.susercontent.com/file/sg-11134201-7rbmc-lp6cwov8rk0898';
+            const requestBody = {
+                name: values.name,
+                description: values.description,
+                'base-price': values.basePrice,
+                'stock-quantity': values.stockQuantity,
+                'url-images': imageUrl,
+                'category-id': values.categoryId,
+            };
+
+            await api.post('/products', requestBody).then((response) => {
+                if (response.status === 200 && response.data.isSuccess) {
+                    fetchData();
+                    setIsModalVisible(false);
+                    form.resetFields();
+                    setFileList([]);
+                    toast.success('Create Product Success');
+                } else {
+                    toast.error(response.data.message);
+                }
+            }).catch(() => {
+                toast.error('Something wrongs');
+            });
+    }
 
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -249,17 +259,21 @@ const ProductsTable = () => {
                 >
                     <Select.Option value={''}>All Categories</Select.Option>
                     {categories.map(category => (
-                        <Select.Option key={category.name} value={category.name}>
+                        <Select.Option key={category.id} value={category.id}>
                             {category.name}
                         </Select.Option>
                     ))}
                 </Select>
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateProduct}>
-                    Thêm sản phẩm mới
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+                    setIsCreateModalVisible(true);
+                    createForm.resetFields();
+                    
+                }}>
+                    Add New Product
                 </Button>
             </Space>
             <Input.Search
-                placeholder="Tìm kiếm"
+                placeholder="Search"
                 allowClear
                 enterButton="Search"
                 size="medium"
@@ -276,31 +290,33 @@ const ProductsTable = () => {
                 onRow={(record) => ({
                     onClick: () => {
                         setSelectedProduct(record);
+                        console.log(record);
                         form.setFieldsValue({
+                            code: record.product['product-code'],
                             name: record.product.name,
                             basePrice: parseFloat(record.product['base-price']),
                             stockQuantity: record.product['stock-quantity'],
-                            categoryId: record.product['category-id'],
+                            categoryId: record.product['category-name'],
                             description: record.product.description,
                         });
                         setIsModalVisible(true);
                     },
                 })}
                 locale={{
-                    emptyText: <Empty description="Không tìm thấy dữ liệu" />,
+                    emptyText: <Empty description="Not found data" />,
                 }}
             />
             <Modal
-                title={selectedProduct ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
-                visible={isModalVisible}
-                onOk={handleOk}
+                title={'Edit Product'}
+                open={isModalVisible}
+                onOk={() => {form.submit();}}
                 onCancel={handleCancel}
                 footer={[
                     <Button key="back" onClick={handleCancel}>
-                        Hủy
+                        Cancel
                     </Button>,
-                    <Button key="submit" type="primary" onClick={handleOk}>
-                        {selectedProduct ? 'Chỉnh sửa' : 'Thêm'}
+                    <Button key="submit" type="primary" onClick={() => {form.submit();}}>
+                        {'Edit'}
                     </Button>,
                 ]}
             >
@@ -312,39 +328,45 @@ const ProductsTable = () => {
                     wrapperCol={{ span: 18 }}
                 >
                     <Form.Item
+                        name={'code'}
+                        label={'Product Code'}
+                    >
+                        <Input disabled></Input>
+                    </Form.Item>
+                    <Form.Item
                         name="name"
-                        label="Tên sản phẩm"
+                        label="Product Name"
                         rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item
                         name="basePrice"
-                        label="Giá"
+                        label="Base Price"
                         rules={[{ required: true, message: 'Vui lòng nhập giá sản phẩm!' }]}
                     >
                         <InputNumber min={0} />
                     </Form.Item>
                     <Form.Item
                         name="description"
-                        label="Mô tả"
+                        label="Description"
                         rules={[{ required: true, message: 'Vui lòng nhập mô tả sản phẩm!' }]}
                     >
                         <Input.TextArea />
                     </Form.Item>
                     <Form.Item
                         name="stockQuantity"
-                        label="Số lượng"
+                        label="Quantity"
                         rules={[{ required: true, message: 'Vui lòng nhập số lượng sản phẩm!' }]}
                     >
                         <InputNumber min={0} />
                     </Form.Item>
                     <Form.Item
                         name="categoryId"
-                        label="Danh mục"
+                        label="Category"
                         rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
                     >
-                        <Select placeholder="Chọn danh mục">
+                        <Select placeholder="Select Categories">
                             {categories.map(category => (
                                 <Select.Option key={category.id} value={category.id}>
                                     {category.name}
@@ -354,7 +376,95 @@ const ProductsTable = () => {
                     </Form.Item>
                     <Form.Item
                         name="image"
-                        label="Hình ảnh"
+                        label="Image"
+                        valuePropName="fileList"
+                        getValueFromEvent={(e) => e?.fileList}
+                        rules={[{ required: true, message: 'Vui lòng chọn hình ảnh!' }]}
+                    >
+                        <Upload.Dragger {...uploadProps}>
+                            <p className="ant-upload-drag-icon">
+                                <InboxOutlined />
+                            </p>
+                            <p className="ant-upload-text">Kéo và thả hoặc chọn hình ảnh</p>
+                            <p className="ant-upload-hint">
+                                Chỉ được tải lên một tệp
+                            </p>
+                        </Upload.Dragger>
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            <Modal
+                title={'Create Product'}
+                open={isCreateModalVisible}
+                onOk={() => {createForm.submit();}}
+                onCancel={() => {
+                    setIsCreateModalVisible(false);
+                    setFileList([]);
+                }}
+                footer={[
+                    <Button key="back" onClick={() => {
+                        setIsCreateModalVisible(false);
+                        setFileList([]);
+                    }}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" onClick={() => {createForm.submit();}}>
+                        {'Create'}
+                    </Button>,
+                ]}
+            >
+                <Form
+                    form={createForm}
+                    onFinish={onCreateProduct}
+                    onFinishFailed={onFinishFailed}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
+                >
+                    <Form.Item
+                        name="name"
+                        label="Product Name"
+                        rules={[{ required: true, message: 'Vui lòng nhập tên sản phẩm!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="basePrice"
+                        label="Base Price"
+                        rules={[{ required: true, message: 'Vui lòng nhập giá sản phẩm!' }]}
+                    >
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    <Form.Item
+                        name="description"
+                        label="Description"
+                        rules={[{ required: true, message: 'Vui lòng nhập mô tả sản phẩm!' }]}
+                    >
+                        <Input.TextArea />
+                    </Form.Item>
+                    <Form.Item
+                        name="stockQuantity"
+                        label="Quantity"
+                        rules={[{ required: true, message: 'Vui lòng nhập số lượng sản phẩm!' }]}
+                    >
+                        <InputNumber min={0} />
+                    </Form.Item>
+                    <Form.Item
+                        name="categoryId"
+                        label="Category"
+                        rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
+                    >
+                        <Select placeholder="Select Categories">
+                            {categories.map(category => (
+                                <Select.Option key={category.id} value={category.id}>
+                                    {category.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item
+                        name="image"
+                        label="Image"
                         valuePropName="fileList"
                         getValueFromEvent={(e) => e?.fileList}
                         rules={[{ required: true, message: 'Vui lòng chọn hình ảnh!' }]}

@@ -15,6 +15,8 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import PrivateRoute from "./PrivateRoute";
 import StaffTable from "../components/Admin/StaffTable";
+import MenuTable from "../components/Admin/MenuTable";
+import StoreLevelTable from "../components/Shared/StoreLevelTable";
 
 export const router = createBrowserRouter([
     {
@@ -68,6 +70,14 @@ export const router = createBrowserRouter([
             {
                 path: "categories",
                 element: <CategoriesTable />,
+            },
+            {
+                path: "menus",
+                element: <MenuTable/>
+            },
+            {
+                path: "store-levels",
+                element: <StoreLevelTable/>
             },
             {
                 path: "*",
