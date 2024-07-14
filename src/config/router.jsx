@@ -17,6 +17,7 @@ import PrivateRoute from "./PrivateRoute";
 import StaffTable from "../components/Admin/StaffTable";
 import MenuTable from "../components/Admin/MenuTable";
 import StoreLevelTable from "../components/Shared/StoreLevelTable";
+import StoreTypeTable from "../components/Shared/StoreTypeTable";
 
 export const router = createBrowserRouter([
     {
@@ -78,6 +79,10 @@ export const router = createBrowserRouter([
             {
                 path: "store-levels",
                 element: <StoreLevelTable/>
+            },
+            {
+                path: "store-types",
+                element: <StoreTypeTable/>
             },
             {
                 path: "*",

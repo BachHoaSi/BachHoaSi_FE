@@ -36,7 +36,7 @@ const menuItems = [
     label: "Types",
     children: [
       createMenuItem("Store Levels", "5", <LeaderboardOutlined />, "/admin/store-levels"),
-      createMenuItem("Store Types", "6", <ProductOutlined />, "/admin/shippers"),
+      createMenuItem("Store Types", "6", <ProductOutlined />, "/admin/store-types"),
       createMenuItem("Categories", "7", <CategoryOutlined/>, "/admin/categories")
     ],
   },
