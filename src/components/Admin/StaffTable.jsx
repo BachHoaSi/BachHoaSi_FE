@@ -5,13 +5,13 @@ import {
   Form,
   Input,
   Modal,
-  Checkbox,
   Select,
   Space,
   Table,
   Tag,
   message,
 } from "antd";
+import api from '../../services/api';
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -181,14 +181,10 @@ const StaffTable = () => {
 
   const onFinish = async (values) => {
     try {
-      await axios.patch(
-        `https://api.fams.college/api/v1/admins/${selectedAccount.staff.id}`,
-        values,
-        {
-          headers: {
-            authorization: "Bearer " + sessionStorage.getItem("token"),
-          },
-        }
+      console.log(values);
+      await api.put(
+        `admins/${selectedAccount.staff.id}`,
+        values
       );
       fetchData(); // Fetch data again after updating
       message.success('Staff updated successfully');
@@ -239,9 +235,7 @@ const StaffTable = () => {
               id: record.staff.id,
               fullName: record.staff['full-name'],
               username: record.staff.username,
-              role: record.staff.role,
-              isActive: record.staff['is-active'],
-              isLocked: record.staff['is-locked'],
+              role: record.staff.role
             });
             setIsModalVisible(true);
           }
@@ -308,22 +302,6 @@ const StaffTable = () => {
         name="username"
       >
         <Input />
-      </Form.Item>
-      <Form.Item
-        label="Active"
-        name="isActive"
-        valuePropName="checked"
-        rules={[{ required: true, message: 'Please select active status' }]}
-      >
-        <Checkbox />
-      </Form.Item>
-      <Form.Item
-        label="Locked"
-        name="isLocked"
-        valuePropName="checked"
-        rules={[{ required: true, message: 'Please select locked status' }]}
-      >
-        <Checkbox />
       </Form.Item>
     </Form>
       </Modal>
