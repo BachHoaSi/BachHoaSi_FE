@@ -11,7 +11,6 @@ import {
   message,
 } from "antd";
 import api from '../../services/api';
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
