@@ -1,4 +1,7 @@
-# React + Vite
+# Bach Hoa Si
+## Bach hoa si UI for admin, manager and staff
+
+### Contributors
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

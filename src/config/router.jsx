@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import StaffDetailsPage from "../components/Admin/StaffDetail";
-import StaffsTable from "../components/Admin/StaffsTable";
+import ShipperTable from "../components/Admin/ShipperTable";
 import NotFound from "../components/NotFound";
 import CategoriesTable from "../components/Shared/CategoriesTable";
 import AdminDashboard from "../components/Shared/ChartDashboard";
@@ -14,6 +14,7 @@ import AdminPage from "../pages/AdminPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import PrivateRoute from "./PrivateRoute";
+import StaffTable from "../components/Admin/StaffTable";
 
 export const router = createBrowserRouter([
     {
@@ -53,8 +54,12 @@ export const router = createBrowserRouter([
                 element: <ProductDetailsPage />,
             },
             {
-                path: "staff",
-                element: <StaffsTable />,
+                path: "shippers",
+                element: <ShipperTable />,
+            },
+            {
+                path: "staffs",
+                element: <StaffTable/>
             },
             {
                 path: "staffs/:staffId",

@@ -1,6 +1,5 @@
 import 'animate.css';
 import { Breadcrumb } from 'antd';
-import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import CustomLayout from '../components/Common/Layout';
 
@@ -8,9 +7,10 @@ const breadcrumbNameMap = {
     '/admin/dashboard': 'Dashboard',
     '/admin/orders': 'Orders',
     '/admin/products': 'Products',
-    '/admin/shipping': 'Shipping',
-    '/admin/stores': 'Stores',
     '/admin/staff': 'Staffs',
+    '/admin/shippers': 'Shippers',
+    '/admin/stores': 'Stores',
+    
 };
 
 const AdminPage = () => {

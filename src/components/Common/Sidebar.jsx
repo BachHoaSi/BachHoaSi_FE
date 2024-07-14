@@ -28,10 +28,10 @@ const items = [
     getItem('Orders', '2', <AuditOutlined />, '/admin/orders'),
     getItem('Products', '3', <ProductOutlined />, '/admin/products'),
     getItem('Stores', '4', <UserOutlined />, '/admin/stores'),
-    getItem('Staff', '5', <UserOutlined />, '/admin/shipping'),
-    getItem('Shipper', '6', <UserOutlined />, '/admin/staff'),
+    getItem('Staff', '5', <UserOutlined />, '/admin/staffs'),
+    getItem('Shipper', '6', <UserOutlined />, '/admin/shippers'),
     getItem('Categories', '7', <TagsOutlined />, '/admin/categories'),
-    getItem('Menu', '8', <MenuOutlined />, '/admin/settings'),
+    getItem('Setting', '8', <MenuOutlined />, '/admin/settings'),
 ];
 sessionStorage.setItem('sidebarItems', JSON.stringify(items));
 

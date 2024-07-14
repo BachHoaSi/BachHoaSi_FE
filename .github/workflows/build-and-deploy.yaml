@@ -25,7 +25,7 @@ jobs:
   
   staging-fe-deploy:
     name: Deploy Staging FE Admin To Google Service Server For Testing
-    runs-on: deploy
+    runs-on: arisa-deploy
     needs: bach-hoa-si-fe-build
     env:
       DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}

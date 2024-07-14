@@ -2,12 +2,11 @@
 import { EnvironmentOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { faker } from '@faker-js/faker';
 import { Avatar, Card, Descriptions, Divider, Space, Tag, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const StaffDetailsPage = () => {
     const { storeId } = useParams();
-    const navigate = useNavigate();
     const [storeDetails, setstoreDetails] = useState(null);
 
     useEffect(() => {
