@@ -1,213 +1,199 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Empty, Form, Input, Modal, Select, Space } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import SearchableTable from '../Functions/SearchableTable';
-
-const data = [];
-
-const statusOptions = ['Pending', 'Processing', 'Completed', 'Canceled'];
-const storeNames = [
-    'John', 'Jane', 'Alice', 'Bob', 'Charlie', 'Donna', 'Evan', 'Grace', 'Hank', 'Ivy',
-    'Jack', 'Laura', 'Mike', 'Nancy', 'Oscar', 'Peter', 'Quinn', 'Ryan', 'Sarah', 'Tom',
-    'Ursula', 'Victor', 'Wendy', 'Xavier', 'Yvonne', 'Zoe'
-];
-const storeSurnames = [
-    'Doe', 'Smith', 'Johnson', 'Brown', 'Davis', 'Edwards', 'Frank', 'Hall', 'Isaac', 'Jones',
-    'King', 'Lewis', 'Miller', 'Nichols', 'Owens', 'Parker', 'Quinn', 'Roberts', 'Taylor', 'Upton',
-    'Vaughn', 'Williams', 'Xavier', 'Young', 'Zimmerman', 'Anderson'
-];
-
-for (let i = 1; i <= 50; i++) {
-    const orderId = `10${i.toString().padStart(2, '0')}`;
-    const store = `${storeNames[Math.floor(Math.random() * storeNames.length)]} ${storeSurnames[Math.floor(Math.random() * storeSurnames.length)]}`;
-    const price = Math.floor(Math.random() * 300) + 50 + (Math.random() * 100).toFixed(2);
-    const status = statusOptions[Math.floor(Math.random() * statusOptions.length)];
-    const year = 2023;
-    const month = Math.floor(Math.random() * 12) + 1;
-    const day = Math.floor(Math.random() * 28) + 1;
-    const createdAt = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-
-    let deliveryAt = new Date(createdAt);
-    deliveryAt.setDate(deliveryAt.getDate() + Math.floor(Math.random() * 30));
-    deliveryAt = deliveryAt.toISOString().slice(0, 10);
-
-    data.push({
-        key: i.toString(),
-        orderId,
-        store,
-        price,
-        status,
-        createdAt,
-        deliveryAt,
-    });
-}
+import {
+  Input,
+  Empty,
+  Space,
+  Tag,
+  Table,
+} from "antd";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { jsonToQueryParams } from "../../helper/tool";
+import SearchBar from "../Functions/SearchBar";
 
 const OrdersTable = () => {
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const [filteredInfo, setFilteredInfo] = useState({});
-    const searchInput = useRef(null);
-    const [filteredData, setFilteredData] = useState(data);
-    const navigate = useNavigate();
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [form] = Form.useForm();
+  const [animate, setAnimate] = useState("");
+  const [data, setData] = useState([]);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [searchParams, setSearchParams] = useState('');
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
-    const handleCreateOrder = () => {
-        setIsModalVisible(true);
-    };
+  useEffect(() => {
+    fetchData();
+  }, [pagination.current, pagination.pageSize, searchParams]);
 
-    const handleOk = () => {
-        form.submit();
-    };
+  const fetchData = async () => {
+    setLoading(true);
+    const { current, pageSize } = pagination;
+    const queryJson = {
+        id: searchParams.name
+    }
+    const queryEncode = jsonToQueryParams(queryJson);
+    try {
+      const response = await api.get(`orders`, {
+        params: {
+          page: current - 1,
+          size: pageSize,
+        },
+      });
+      const { content, totalElements } = response.data.data;
+      setData(
+        content.map((item, index) => ({
+          key: (current - 1) * pageSize + index + 1,
+          order: item,
+        }))
+      );
+      setPagination((prev) => ({
+        ...prev,
+        total: totalElements,
+      }));
+    } catch (error) {
+      toast.error("Failed to fetch data. Please try again.");
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
+  const handleChange = (pagination, filters, sorter) => {
+    setPagination(pagination);
+  };
 
-    const onFinish = (values) => {
-        console.log('Success:', values);
-        setIsModalVisible(false);
-    };
+  const handleSearch = (search) => {
+    setSearchParams(search);
+  }
 
-    const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
-    };
+  const handleRowClick = (record) => {
+    navigate(`/admin/orders/${record.order.orderId}`);
+  };
 
-    const handleChange = (pagination, filters, sorter) => {
-        setFilteredInfo(filters);
-        const filteredStatus = filters.status || null;
+  const columns = [
+    {
+      title: "OrderID",
+      dataIndex: ["order", "orderId"],
+      key: "order.orderId",
+      width: "10%",
+    },
+    {
+      title: "Store Name",
+      dataIndex: ["order", "storeName"],
+      key: "order.storeName",
+      width: "20%",
+    },
+    {
+      title: "Price",
+      dataIndex: ["order", "totalPrice"],
+      key: "order.totalPrice",
+      width: "15%",
+      render: (price) => `$${(parseFloat(price) || 0).toFixed(2)}`,
+    },
+    {
+      title: "Status",
+      dataIndex: ["order", "orderStatus"],
+      key: "order.orderStatus",
+      width: "15%",
+      filters: [
+        { text: "PENDING", value: "PENDING" },
+        { text: "ACCEPTED", value: "ACCEPTED" },
+        { text: "PICKED_UP", value: "PICKED_UP" },
+        { text: "IN_TRANSIT", value: "IN_TRANSIT" },
+        { text: "DELIVERED", value: "DELIVERED" },
+        { text: "CANCELLED", value: "CANCELLED" },
+      ],
+      onFilter: (value, record) => record.order.orderStatus === value,
+      render: (status) => {
+        let color = "blue";
+        let text = status;
 
-        let filteredData = data;
-        if (filteredStatus) {
-            filteredData = filteredData.filter((item) =>
-                filteredStatus.includes(item.status)
-            );
+        switch (status) {
+          case "PENDING":
+            color = "orange";
+            text = "Pending";
+            break;
+          case "ACCEPTED":
+            color = "green";
+            text = "Accepted";
+            break;
+          case "PICKED_UP":
+            color = "green";
+            text = "Picked Up";
+            break;
+          case "IN_TRANSIT":
+            color = "green";
+            text = "In Transit";
+            break;
+          case "DELIVERED":
+            color = "green";
+            text = "Delivered";
+            break;
+          case "CANCELLED":
+            color = "red";
+            text = "Cancelled";
+            break;
         }
 
-        setFilteredData(filteredData);
-    };
+        return (
+          <Tag color={color} key={status}>
+            {text}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Delivery At",
+      dataIndex: ["order", "storeAddress"],
+      key: "deliveryAt",
+      width: "20%",
+    },
+    {
+      title: "Created At",
+      dataIndex: ["order", "createdDate"],
+      key: "createdDate",
+      width: "20%",
+    },
+  ];
 
-    const handleRowClick = (record) => {
-        navigate(`/admin/orders/123`);
-    };
-
-    const columns = [
-        {
-            title: 'OrderID',
-            dataIndex: 'orderId',
-            key: 'orderId',
-            width: '10%',
-        },
-        {
-            title: 'Store',
-            dataIndex: 'store',
-            key: 'store',
-            width: '20%',
-        },
-        {
-            title: 'Price',
-            dataIndex: 'price',
-            key: 'price',
-            width: '15%',
-            render: (price) => `$${(parseFloat(price) || 0).toFixed(2)}`,
-        },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-            width: '15%',
-            filters: [
-                { text: 'Pending', value: 'Pending' },
-                { text: 'Processing', value: 'Processing' },
-                { text: 'Completed', value: 'Completed' },
-                { text: 'Canceled', value: 'Canceled' },
-            ],
-            onFilter: (value, record) => record.status === value,
-        },
-        {
-            title: 'Delivery At',
-            dataIndex: 'deliveryAt',
-            key: 'deliveryAt',
-            width: '20%',
-        },
-        {
-            title: 'CreatedAt',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            width: '20%',
-        },
-    ];
-
-    const [animate, setAnimate] = useState('');
-
-    useEffect(() => {
-        const animationDirection = sessionStorage.getItem('animationDirection');
-        console.log(animationDirection);
-        if (animationDirection) {
-            setAnimate(animationDirection);
-            sessionStorage.removeItem('animationDirection');
-        }
-    }, []);
-
-    return (
-        <div className={`animate__animated ${animate}`}>
-            <Space style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }} >
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateOrder} >
-                    Tạo đơn hàng
-                </Button>
-            </Space>
-            <div>
-                <SearchableTable
-                    data={filteredData.length > 0 ? filteredData : data}
-                    columns={columns}
-                    searchInputProps={{
-                        placeholder: 'Search Orders',
-                        style: { marginBottom: 8, display: 'block' },
-                        onChange: (e) => setSearchText(e.target.value),
-                        ref: searchInput,
-                    }}
-                    tableProps={{
-                        onChange: handleChange,
-                        onRow: (record) => ({
-                            onClick: () => handleRowClick(record),
-                        }),
-                        locale: { emptyText: <Empty description="Không tìm thấy dữ liệu" /> },
-                    }}
-                />
-            </div>
-            <Modal
-                title="Tạo đơn hàng mới"
-                open={isModalVisible}
-                onOk={handleOk}
-                onCancel={handleCancel}
-                footer={[
-                    <Button key="back" onClick={handleCancel}>
-                        Hủy
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleOk}>
-                        Tạo
-                    </Button>,
-                ]}
-            >
-                <Form form={form} onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                    <Form.Item name="storeName" label="Tên khách hàng" rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng!' }]}>
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item name="products" label="Sản phẩm" rules={[{ required: true, message: 'Vui lòng chọn sản phẩm!' }]}>
-                        <Select mode="multiple" placeholder="Chọn sản phẩm">
-                            {/* Render các option sản phẩm ở đây */}
-                        </Select>
-                    </Form.Item>
-
-                    <Form.Item name="deliveryDate" label="Ngày giao hàng" rules={[{ required: true, message: 'Vui lòng chọn ngày giao hàng!' }]}>
-                        <DatePicker />
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </div>
-    );
+  return (
+    <div className={`animate__animated ${animate}`}>
+      <ToastContainer></ToastContainer>
+      <Space
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "20px",
+        }}
+      >
+        <Input.Search
+              placeholder={'Search'}
+              onSearch={handleSearch}
+              enterButton
+            />
+      </Space>
+      <div>
+        <Table
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          onChange={handleChange}
+          pagination={pagination}
+          onRow={(record) => ({
+            onClick: () => {
+              handleRowClick(record);
+            },
+          })}
+          locale={{
+            emptyText: <Empty description="Không tìm thấy dữ liệu" />,
+          }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default OrdersTable;
