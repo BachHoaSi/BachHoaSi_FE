@@ -4,7 +4,6 @@ import {
   Empty,
   Form,
   Input,
-  InputNumber,
   Modal,
   Space,
   Tag,
@@ -21,7 +20,7 @@ const StoreTypeTable = () => {
   const [isCreateModalVisible, setCreateIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
-  const [selectStoreLevel, setSelectedStoreLevel] = useState(null);
+  const [selectStoreType, setSelectedStoreType] = useState(null);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -102,7 +101,7 @@ const StoreTypeTable = () => {
 
   const onFinish = async (values) => {
     try {
-      await api.put(`store-types/${selectStoreLevel.level.id}`, values);
+      await api.put(`store-types/${selectStoreType.type.id}`, values);
       fetchData(); // Fetch data again after updating
       message.success("Staff updated successfully");
       setIsModalVisible(false);
@@ -114,13 +113,13 @@ const StoreTypeTable = () => {
 
   const onCreateFinish = async (values) => {
     await api
-      .post(`store-levels`, values)
+      .post(`store-types`, values)
       .then((result) => {
         if (result.status === 200 && result.data.isSuccess) {
           fetchData();
-          message.success("Add Store Level Successfully");
+          message.success("Add Store Type Successfully");
           setCreateIsModalVisible(false);
-          toast.success("Create Store Level Success");
+          toast.success("Add Store Type Success");
         } else {
           toast.error(result.data.message);
         }
@@ -168,7 +167,7 @@ const StoreTypeTable = () => {
         onChange={handleTableChange}
         onRow={(record) => ({
           onClick: () => {
-            setSelectedStoreLevel(record);
+            setSelectedStoreType(record);
             form.setFieldsValue({
               id: record.type.id,
               name: record.type.name,
@@ -234,13 +233,13 @@ const StoreTypeTable = () => {
             rules={[
               {
                 required: true,
-                message: "Vui lòng chọn trạng thái hoạt động!",
+                message: "Please choice status please!",
               },
             ]}
           >
             <Select placeholder="Select Status" defaultValue={true}>
-              <Select.Option value={true}>Có</Select.Option>
-              <Select.Option value={false}>Không</Select.Option>
+              <Select.Option value={true}>Yes</Select.Option>
+              <Select.Option value={false}>No</Select.Option>
             </Select>
           </Form.Item>
         </Form>
@@ -295,13 +294,13 @@ const StoreTypeTable = () => {
             rules={[
               {
                 required: true,
-                message: "Vui lòng chọn trạng thái hoạt động!",
+                message: "Please choice status please!",
               },
             ]}
           >
             <Select placeholder="Select Status" defaultValue={true}>
-              <Select.Option value={true}>Có</Select.Option>
-              <Select.Option value={false}>Không</Select.Option>
+              <Select.Option value={true}>Yes</Select.Option>
+              <Select.Option value={false}>No</Select.Option>
             </Select>
           </Form.Item>
         </Form>
