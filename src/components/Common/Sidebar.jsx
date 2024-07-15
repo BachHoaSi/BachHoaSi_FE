@@ -27,9 +27,9 @@ const createMenuItem = (label, key, icon, path) => ({
 // Define the menu items
 const menuItems = [
   createMenuItem("DashBoard", "1", <LineChartOutlined />, "/admin/dashboard"),
-  createMenuItem("Menu", "9", <MenuOutlined />, "/admin/menus"),
-  createMenuItem("Orders", "2", <AuditOutlined />, "/admin/orders"),
-  createMenuItem("Products", "3", <ProductOutlined />, "/admin/products"),
+  createMenuItem("Menu", "2", <MenuOutlined />, "/admin/menus"),
+  createMenuItem("Orders", "3", <AuditOutlined />, "/admin/orders"),
+  createMenuItem("Products", "4", <ProductOutlined />, "/admin/products"),
   {
     key: "type",
     icon: <TagsOutlined />,
@@ -40,19 +40,17 @@ const menuItems = [
       createMenuItem("Categories", "7", <CategoryOutlined/>, "/admin/categories")
     ],
   },
-  
-  // User Menu - This is the parent item
   {
     key: "user",
     icon: <UserOutlined />,
     label: "Users",
     children: [
-      createMenuItem("Staff", "5", <UserOutlined />, "/admin/staffs"),
-      createMenuItem("Shipper", "6", <UserOutlined />, "/admin/shippers"),
-      createMenuItem("Stores", "4", <UserOutlined />, "/admin/stores"),
+      createMenuItem("Staff", "8", <UserOutlined />, "/admin/staffs"),
+      createMenuItem("Shipper", "9", <UserOutlined />, "/admin/shippers"),
+      createMenuItem("Stores", "10", <UserOutlined />, "/admin/stores"),
     ],
   },
-  createMenuItem("Setting", "8", <SettingOutlined />, "/admin/settings"),
+  createMenuItem("Setting", "11", <SettingOutlined />, "/admin/settings"),
 ];
 
 const Sidebar = () => {

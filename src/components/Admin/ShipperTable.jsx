@@ -17,6 +17,8 @@ import api from "../../services/api";
 import { UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import moment from "moment/moment";
+import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
 const ShipperTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -39,11 +41,6 @@ const ShipperTable = () => {
     VAN: "VAN",
   };
 
-  // const ShippingStatus = {
-  //   WAITING_FOR_ORDER,
-  //   SHIPPING,
-  //   OFFLINE
-  // }
   const ShippingStatus = {
     "WAITING FOR ORDER": "WAITING_FOR_ORDER",
     SHIPPING: "SHIPPING",
@@ -115,11 +112,20 @@ const ShipperTable = () => {
 
   const onFinish = () => {};
 
-  const handleUpdateShipper = async () => {};
-  const handleResetPassword = (userId) => {
-    // Implement reset password logic here, e.g., using API call
-    console.log(`Reset password for user ID: ${userId}`);
-    // You might want to show a confirmation message, update the UI, etc.
+  const handleResetPassword = async (userId) => {
+    if(userId !== undefined && userId !== null && userId > 0) {
+      await api.patch(`shippers/reset-password?id=${userId}`,).then((res) => {
+        if (res.status === 200 && res.data.isSuccess) {
+          toast.success('Reset Password Success');
+        } else {
+          toast.error(res.data.message);
+        }
+      }).catch(() => {
+        toast.error('Something errors');
+      });
+    } else {
+      toast.error('Input was not validate');
+    }
   };
 
   const columns = [
@@ -180,8 +186,14 @@ const ShipperTable = () => {
       render: (_, record) => (
         <Space size="middle">
           <Popconfirm
-            title="Are you sure to delete this record?"
-            onConfirm={() => handleDelete(record.key)}
+            title="Are you sure to delete this shipper?"
+            onConfirm={(e) => {
+              e.stopPropagation();
+              handleDelete(record.key);
+            }}
+            onCancel={(e) => {
+              e.stopPropagation();
+            }}
             okText="Yes"
             cancelText="No"
           >
@@ -190,7 +202,10 @@ const ShipperTable = () => {
               onClick={(e) => e.stopPropagation()}
             />
           </Popconfirm>
-          <Button type="link" onClick={() => handleResetPassword(record.id)}>
+          <Button type="link" onClick={(e) => {
+            e.stopPropagation();
+            handleResetPassword(record.key);
+          }}>
             <UserOutlined />
             Reset Password
           </Button>
@@ -201,6 +216,7 @@ const ShipperTable = () => {
 
   return (
     <div>
+      <ToastContainer/>
       <Space
         style={{
           display: "flex",
@@ -291,9 +307,9 @@ const ShipperTable = () => {
           </Form.Item>
           <Form.Item
             name="phone"
-            label="Số điện thoại"
+            label="Phone Number"
             rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
+              { required: true, message: "Please enter your phone number!" },
             ]}
           >
             <Input />
@@ -301,14 +317,14 @@ const ShipperTable = () => {
           <Form.Item
             name="email"
             label="Email"
-            rules={[{ required: true, message: "Vui lòng nhập email!" }]}
+            rules={[{ required: true, message: "Please enter valid email" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="status"
             label="Trạng thái"
-            rules={[{ required: true, message: "Vui lòng nhập trạng thái!" }]}
+            rules={[{ required: true, message: "Please select status" }]}
           >
             <Input />
           </Form.Item>
