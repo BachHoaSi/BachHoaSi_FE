@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import api from '../../services/api';
 import { formatFormalDate } from '../../helper/tool';
+import { ToastContainer, toast } from 'react-toastify';
 
 const { Text } = Typography;
 
@@ -31,6 +32,8 @@ const mapResponseToOrderDetailDto = (response) => {
             deliveryAt: response.deliveryTime,
             products: list,
             feedback: response.feedback,
+            grandTotal: response.grandTotal,
+            paymentMethod: response.paymentMethod
         };
     }
     return {
@@ -40,6 +43,8 @@ const mapResponseToOrderDetailDto = (response) => {
         status: response.orderStatus,
         createdAt: response.createdAt,
         deliveryAt: response.deliveryTime,
+        grandTotal: response.grandTotal,
+        paymentMethod: response.paymentMethod,
         products: [],
         feedback: response.feedback,
     };
@@ -63,6 +68,20 @@ const OrderDetailsPage = () => {
                 const result = mapResponseToOrderDetailDto(responseData);
                 setOrderDetails(result)
             }
+        });
+    }
+
+    const cancelOrder = async (orderIdInput) => {
+        await api.patch(`orders/cancel/${orderIdInput}`).then((res) => {
+            if (res.status === 200 && res.data.isSuccess) {
+                toast.success("Cancel Order Success");
+                window.location.reload();
+            }else {
+                toast.error(res.data.message);
+            }
+        }).catch((err) => {
+            console.log(err);
+            toast.error("Something error");
         });
     }
 
@@ -94,7 +113,18 @@ const OrderDetailsPage = () => {
                 return 'default';
         }
     };
-    const { store, price, status, createdAt, deliveryAt, products, feedback } = orderDetails;
+
+    const getPaymentTagColor = (status) => {
+        switch (status) {
+            case 'COD':
+                return 'gray';
+            case 'BANKING':
+                return 'green';
+            default:
+                return 'default';
+        }
+    };
+    const { store, price, status, createdAt, deliveryAt, products, feedback, paymentMethod, grandTotal } = orderDetails;
 
     const columns = [
         {
@@ -131,16 +161,13 @@ const OrderDetailsPage = () => {
         },
     ];
 
-    const handleCancelOrder = () => {
-       
-    };
-
     const handleGoBack = () => {
         navigate('/admin/orders');
     };
 
     return (
         <div style={{ padding: 24 }}>
+            <ToastContainer></ToastContainer>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <Button type="link" icon={<ArrowLeftOutlined />} onClick={handleGoBack}>
                     Quay lại
@@ -171,20 +198,22 @@ const OrderDetailsPage = () => {
                                 <Descriptions.Item label="Payment Status">
                                     <Tag color="green">Paid</Tag>
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Payment Method">Visa - 9226</Descriptions.Item>
+                                <Descriptions.Item label="Payment Method">
+                                    <Tag color={getPaymentTagColor(paymentMethod)}>{paymentMethod}</Tag>
+                                </Descriptions.Item>
                                 <Descriptions.Item label="Summary">
-                                    <Text strong>$34.99</Text>
+                                    <Text strong>{grandTotal} VND</Text>
                                 </Descriptions.Item>
                             </Descriptions>
-                            {status !== 'Completed' && status !== 'Canceled' && (
+                            {['ACCEPTED, IN_TRANSIT, PENDING', 'PICKED_UP'].includes(status) && (
                                 <Popconfirm
                                     title="Are you sure you want to cancel that order?"
-                                    onConfirm={handleCancelOrder}
+                                    onConfirm={() => {cancelOrder(ordersId)}}
                                     okText="Yes"
                                     cancelText="No"
                                 >
                                     <Button type="danger" icon={<DeleteOutlined />} style={{ marginTop: '20px', backgroundColor: 'red', color: 'white', width: '100%' }}>
-                                        Hủy đơn hàng
+                                        Cancel Order
                                     </Button>
                                 </Popconfirm>
                             )}
