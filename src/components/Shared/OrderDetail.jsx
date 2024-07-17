@@ -1,63 +1,109 @@
 import { ArrowLeftOutlined, DeleteOutlined } from '@ant-design/icons';
-import { faker } from '@faker-js/faker';
-import { Avatar, Button, Card, Col, Descriptions, Popconfirm, Rate, Row, Space, Steps, Table, Tag, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Avatar, Button, Card, Col, Descriptions, Popconfirm, Row, Space, Table, Tag, Typography } from 'antd';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import api from '../../services/api';
+import { formatFormalDate } from '../../helper/tool';
 
 const { Text } = Typography;
-const { Step } = Steps;
 
-const generateMockOrderDetails = (orderId) => {
-    const numProducts = faker.datatype.number({ min: 1, max: 5 });
 
+const mapResponseToOrderDetailDto = (response) => {
+    const product = response.orderProductMenu;
+    if (product) {
+        const list = product.map((item) => {
+            return {
+                name: item.productName,
+                quantity: item.quantity,
+                category: item.category,
+                price: item.price,
+                image: item.url
+            }
+            
+        });
+        return {
+            orderId: response.orderId,
+            store: response.storeName,
+            price: response.total,
+            status: response.orderStatus,
+            createdAt: response.createdAt,
+            deliveryAt: response.deliveryTime,
+            products: list,
+            feedback: response.feedback,
+        };
+    }
     return {
-        orderId,
-        store: faker.name.fullName(),
-        price: faker.finance.amount(50, 350, 2),
-        status: faker.helpers.arrayElement(['Pending', 'Processing', 'Completed', 'Canceled']),
-        createdAt: faker.date.past().toISOString().slice(0, 10),
-        deliveryAt: faker.date.future().toISOString().slice(0, 10),
-        products: Array.from({ length: numProducts }, () => ({
-            name: faker.commerce.productName(),
-            quantity: faker.datatype.number({ min: 1, max: 5 }),
-            category: faker.commerce.department(),
-            price: faker.finance.amount(10, 100, 2),
-            image: faker.image.image(),
-        })),
-        feedback: faker.lorem.sentence(),
-        rating: faker.datatype.number({ min: 1, max: 5 })
+        orderId: response.orderId,
+        store: response.storeName,
+        price: response.total,
+        status: response.orderStatus,
+        createdAt: response.createdAt,
+        deliveryAt: response.deliveryTime,
+        products: [],
+        feedback: response.feedback,
     };
-};
+    
+}
+
 
 const StyledCard = styled(Card)`
     margin-bottom: 24px;
 `;
 
 const OrderDetailsPage = () => {
-    const { orderId } = useParams();
+    const { ordersId } = useParams();
     const navigate = useNavigate();
     const [orderDetails, setOrderDetails] = useState(null);
 
+    const fetchOrderDetailData = async (orderIdInput) => {
+        await api.get(`orders/${orderIdInput}`).then((res) => {
+            if (res.status === 200 && res.data.isSuccess) {
+                const responseData = res.data.data;
+                const result = mapResponseToOrderDetailDto(responseData);
+                setOrderDetails(result)
+            }
+        });
+    }
+
     useEffect(() => {
-        const mockData = generateMockOrderDetails(orderId);
-        setOrderDetails(mockData);
-    }, [orderId]);
+        fetchOrderDetailData(ordersId);
+    }, [ordersId]);
 
     if (!orderDetails) {
         return <div>Loading...</div>;
     }
 
-    const { store, price, status, createdAt, deliveryAt, products, feedback, rating } = orderDetails;
+    
+
+    const getStatusTagColor = (status) => {
+        switch (status) {
+            case 'PENDING':
+                return 'yellow';
+            case 'ACCEPTED':
+                return 'green';
+            case 'PICKED_UP':
+                return 'orange';
+            case 'IN_TRANSIT':
+                return 'blue';
+            case 'DELIVERED':
+                return 'purple';
+            case 'CANCELLED':
+                return 'red';
+            default:
+                return 'default';
+        }
+    };
+    const { store, price, status, createdAt, deliveryAt, products, feedback } = orderDetails;
 
     const columns = [
         {
-            title: 'STT',
+            title: 'ID',
             dataIndex: 'key',
-            render: (text, record, index) => index + 1,
+            render: (_text, _record, index) => index + 1,
         },
         {
-            title: 'Tên sản phẩm',
+            title: 'Product name',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => (
@@ -68,17 +114,17 @@ const OrderDetailsPage = () => {
             ),
         },
         {
-            title: 'Số lượng',
+            title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
         },
         {
-            title: 'Danh mục',
+            title: 'Category',
             dataIndex: 'category',
             key: 'category',
         },
         {
-            title: 'Giá',
+            title: 'Price',
             dataIndex: 'price',
             key: 'price',
             render: (price) => `$${price}`,
@@ -86,7 +132,7 @@ const OrderDetailsPage = () => {
     ];
 
     const handleCancelOrder = () => {
-        console.log('Hủy đơn hàng', orderId);
+       
     };
 
     const handleGoBack = () => {
@@ -102,51 +148,40 @@ const OrderDetailsPage = () => {
                 <Row gutter={24}>
                     <Col span={17}>
                         <StyledCard>
-                            <Descriptions title="Thông tin đơn hàng" bordered column={2}>
-                                <Descriptions.Item label="Cửa Hàng">{store}</Descriptions.Item>
-                                <Descriptions.Item label="Tổng">{price} $</Descriptions.Item>
-                                <Descriptions.Item label="Trạng thái">
-                                    <Tag color={status === 'Pending' ? 'orange' : status === 'Processing' ? 'blue' : status === 'Completed' ? 'green' : 'red'}>
+                            <Descriptions title="Order Information" bordered column={2}>
+                                <Descriptions.Item label="Store">{store}</Descriptions.Item>
+                                <Descriptions.Item label="Total">{price} VND</Descriptions.Item>
+                                <Descriptions.Item label="Status">
+                                    <Tag color={getStatusTagColor(status)}> 
                                         {status}
                                     </Tag>
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Ngày tạo">{createdAt}</Descriptions.Item>
-                                <Descriptions.Item label="Ngày giao hàng">{deliveryAt}</Descriptions.Item>
-                                <Descriptions.Item label="Đánh giá">
-                                    <Rate disabled defaultValue={rating} />
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Phản hồi">{feedback}</Descriptions.Item>
+                                <Descriptions.Item label="Order Create">{createdAt}</Descriptions.Item>
+                                <Descriptions.Item label="Delivery Day">{formatFormalDate(deliveryAt)}</Descriptions.Item>
+                                <Descriptions.Item label="Feedback">{feedback ? feedback : 'None'}</Descriptions.Item>
                             </Descriptions>
                         </StyledCard>
-                        <StyledCard title="Danh sách sản phẩm">
+                        <StyledCard title="Product List">
                             <Table dataSource={products} columns={columns} pagination={false} />
                         </StyledCard>
                     </Col>
                     <Col span={7}>
-                        <StyledCard>
-                            <Steps direction="vertical" size="small" current={3}>
-                                <Step title="Label Ready" description="Shipment Generated" />
-                                <Step title="Pickup" description="Picked up by carrier" />
-                                <Step title="In Transit" description="Arrived at Sort Facility" />
-                                <Step title="Delivered" description="Arrived at Sort Facility" />
-                            </Steps>
-                        </StyledCard>
-                        <StyledCard title="Thông tin thanh toán">
+                        <StyledCard title="Payment Info">
                             <Descriptions bordered column={1}>
-                                <Descriptions.Item label="Trạng thái thanh toán">
+                                <Descriptions.Item label="Payment Status">
                                     <Tag color="green">Paid</Tag>
                                 </Descriptions.Item>
-                                <Descriptions.Item label="Phương thức thanh toán">Visa - 9226</Descriptions.Item>
-                                <Descriptions.Item label="Tổng cộng">
+                                <Descriptions.Item label="Payment Method">Visa - 9226</Descriptions.Item>
+                                <Descriptions.Item label="Summary">
                                     <Text strong>$34.99</Text>
                                 </Descriptions.Item>
                             </Descriptions>
                             {status !== 'Completed' && status !== 'Canceled' && (
                                 <Popconfirm
-                                    title="Bạn có chắc chắn muốn hủy đơn hàng này?"
+                                    title="Are you sure you want to cancel that order?"
                                     onConfirm={handleCancelOrder}
-                                    okText="Có"
-                                    cancelText="Không"
+                                    okText="Yes"
+                                    cancelText="No"
                                 >
                                     <Button type="danger" icon={<DeleteOutlined />} style={{ marginTop: '20px', backgroundColor: 'red', color: 'white', width: '100%' }}>
                                         Hủy đơn hàng
