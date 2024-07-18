@@ -42,7 +42,6 @@ const OrderAdd = () => {
   const fetchProducts = async () => {
     try {
       const response = await api.get("product-menus/available"); // Replace with your API endpoint
-      console.log(response);
 
       if (response.status === 200 || response.data.isSuccess) {
         setProducts(response.data.data); // Assuming your API returns an array of products in 'content'
