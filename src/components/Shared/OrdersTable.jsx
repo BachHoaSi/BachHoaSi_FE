@@ -7,8 +7,8 @@ import {
   Button,
 } from "antd";
 import { PlusOutlined } from '@ant-design/icons';
-import { useEffect, useRef, useState } from "react";
-import { redirect, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
