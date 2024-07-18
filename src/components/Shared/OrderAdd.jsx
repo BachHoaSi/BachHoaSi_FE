@@ -41,10 +41,10 @@ const OrderAdd = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get("products"); // Replace with your API endpoint
+      const response = await api.get("product-menus/available"); // Replace with your API endpoint
 
       if (response.status === 200 || response.data.isSuccess) {
-        setProducts(response.data.data.content); // Assuming your API returns an array of products in 'content'
+        setProducts(response.data.data); // Assuming your API returns an array of products in 'content'
       } else {
         message.error("Error fetching products");
       }
@@ -98,12 +98,12 @@ const OrderAdd = () => {
 
   const handleProductSearch = async () => {
     try {
-      const response = await api.get(`products?q=name=${searchQuery}`);
+      const response = await api.get(`product-menus/available?name=${searchQuery}`);
 
       if (response.status === 200 || response.data.isSuccess) {
-        const bodyData = response.data.data;
-        const { content } = bodyData;
-        setSearchedProducts(content);
+        const bodyData = response.data;
+        const { data } = bodyData;
+        setSearchedProducts(data);
       } else {
         message.error("No products found");
       }
@@ -136,26 +136,29 @@ const OrderAdd = () => {
   };
 
   const onFinish = async () => {
+    const orderItemValidate =  orderItems.filter(
+      (item) => item.productId !== null && item.quantity > 0
+    ).reduce((acc, item) => {
+      acc[item.productId] = item.quantity;
+      return acc;
+    }, {});
     const orderData = {
       storeId: parseFloat(storeId),
-      orderItems: orderItems.filter(
-        (item) => item.productId !== null && item.quantity > 0
-      ),
+      orderItems: orderItemValidate,
       payingMethod,
       deliveryTime: deliveryTime.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
     };
 
+    if (orderData.orderItems.length === 0) {
+      message.error("Please add at least one product to your order.");
+      return;
+    }
+
     try {
       // Replace this with your actual API call to add the order
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
+      const response = await api.post("orders", orderData);
 
-      if (response.ok) {
+      if (response.status === 200 || response.data.isSuccess) {
         message.success("Order added successfully!");
         setStoreId("");
         setOrderItems([]); // Reset orderItems to an empty array
@@ -163,8 +166,7 @@ const OrderAdd = () => {
         setDeliveryTime(null);
         setSelectedProduct(null);
       } else {
-        const error = await response.json();
-        message.error(error.message || "Error adding order");
+        message.error("Error adding order: " + response.data.message);
       }
     } catch (error) {
       message.error("Error adding order");
@@ -192,9 +194,14 @@ const OrderAdd = () => {
     },
     {
       title: "Product Name",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "productName",
+      key: "productName",
     },
+    {
+      title: "Stock Quantity",
+      dataIndex: "stockQuantity",
+      key: "stockQuantity"
+    }
   ];
 
   return (
@@ -238,7 +245,7 @@ const OrderAdd = () => {
             >
               <Text>
                 {products.find((product) => product.id === item.productId)
-                  ?.name || "Product not found"}
+                  ?.productName || "Product not found"}
               </Text>
               <InputNumber
                 min={0}
@@ -296,6 +303,35 @@ const OrderAdd = () => {
             onChange={(date) => setDeliveryTime(date)}
             showTime
             format="YYYY-MM-DD HH:mm:ss"
+            disabledDate={(current) => {
+              const today = new Date();
+              return current && current < today;
+            }}
+            disabledTime={(current) => {
+              // Disable past times
+              const now = new Date();
+              return {
+                disabledHours: () => {
+                  // Disable hours before the current hour
+                  const currentHour = now.getHours();
+                  return Array.from({ length: currentHour }, (_, i) => i);
+                },
+                disabledMinutes: () => {
+                  // Disable minutes before the current minute
+                  const currentHour = now.getHours();
+                  const currentMinute = now.getMinutes();
+                  if (currentHour === now.getHours()) {
+                    return Array.from({ length: currentMinute }, (_, i) => i);
+                  }
+                  return []; // All minutes are allowed if the hour is not the current hour
+                },
+                disabledSeconds: () => {
+                  // Disable seconds before the current second (if needed)
+                  const currentSecond = now.getSeconds();
+                  return Array.from({ length: currentSecond }, (_, i) => i);
+                },
+              };
+            }}
           />
         </Form.Item>
 
@@ -308,7 +344,7 @@ const OrderAdd = () => {
 
       <Modal
         title="Search Results"
-        visible={isStoreModalVisible}
+        open={isStoreModalVisible}
         onCancel={() => setIsStoreModalVisible(false)}
         footer={null}
       >
@@ -341,7 +377,7 @@ const OrderAdd = () => {
       {/* Product Modal */}
       <Modal
         title="Search Products"
-        visible={isProductModalVisible}
+        open={isProductModalVisible}
         onCancel={() => setIsProductModalVisible(false)}
         footer={null}
       >
