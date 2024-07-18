@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 import StaffDetailsPage from "../components/Admin/StaffDetail";
 import ShipperTable from "../components/Admin/ShipperTable";
 import NotFound from "../components/NotFound";
@@ -106,6 +106,10 @@ export const router = createBrowserRouter([
     {
         path: "/register",
         element: <RegisterPage />,
+    },
+    {
+        path: "/",
+        element: <Navigate to={"/login"}></Navigate>    
     }
 ]);
 
