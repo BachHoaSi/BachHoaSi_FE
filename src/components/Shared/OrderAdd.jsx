@@ -304,6 +304,35 @@ const OrderAdd = () => {
             onChange={(date) => setDeliveryTime(date)}
             showTime
             format="YYYY-MM-DD HH:mm:ss"
+            disabledDate={(current) => {
+              const today = new Date();
+              return current && current < today;
+            }}
+            disabledTime={(current) => {
+              // Disable past times
+              const now = new Date();
+              return {
+                disabledHours: () => {
+                  // Disable hours before the current hour
+                  const currentHour = now.getHours();
+                  return Array.from({ length: currentHour }, (_, i) => i);
+                },
+                disabledMinutes: () => {
+                  // Disable minutes before the current minute
+                  const currentHour = now.getHours();
+                  const currentMinute = now.getMinutes();
+                  if (currentHour === now.getHours()) {
+                    return Array.from({ length: currentMinute }, (_, i) => i);
+                  }
+                  return []; // All minutes are allowed if the hour is not the current hour
+                },
+                disabledSeconds: () => {
+                  // Disable seconds before the current second (if needed)
+                  const currentSecond = now.getSeconds();
+                  return Array.from({ length: currentSecond }, (_, i) => i);
+                },
+              };
+            }}
           />
         </Form.Item>
 
