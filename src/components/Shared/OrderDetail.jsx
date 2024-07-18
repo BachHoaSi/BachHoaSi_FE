@@ -205,7 +205,7 @@ const OrderDetailsPage = () => {
                                     <Text strong>{grandTotal} VND</Text>
                                 </Descriptions.Item>
                             </Descriptions>
-                            {['ACCEPTED, IN_TRANSIT, PENDING', 'PICKED_UP'].includes(status) && (
+                            {['ACCEPTED', 'IN_TRANSIT', 'PENDING', 'PICKED_UP'].includes(status) && (
                                 <Popconfirm
                                     title="Are you sure you want to cancel that order?"
                                     onConfirm={() => {cancelOrder(ordersId)}}

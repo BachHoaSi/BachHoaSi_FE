@@ -4,9 +4,11 @@ import {
   Space,
   Tag,
   Table,
+  Button,
 } from "antd";
+import { PlusOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -91,7 +93,7 @@ const OrdersTable = () => {
       dataIndex: ["order", "totalPrice"],
       key: "order.totalPrice",
       width: "15%",
-      render: (price) => `$${(parseFloat(price) || 0).toFixed(2)}`,
+      render: (price) => `${(parseFloat(price) || 0).toFixed(2)} VND`,
     },
     {
       title: "Status",
@@ -174,6 +176,11 @@ const OrdersTable = () => {
               onSearch={handleSearch}
               enterButton
             />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+              navigate("add");
+                }}>
+                    Add New Order
+                </Button>
       </Space>
       <div>
         <Table
@@ -188,7 +195,7 @@ const OrdersTable = () => {
             },
           })}
           locale={{
-            emptyText: <Empty description="Không tìm thấy dữ liệu" />,
+            emptyText: <Empty description="Not found Data" />,
           }}
         />
       </div>

@@ -18,6 +18,7 @@ import StaffTable from "../components/Admin/StaffTable";
 import MenuTable from "../components/Admin/MenuTable";
 import StoreLevelTable from "../components/Shared/StoreLevelTable";
 import StoreTypeTable from "../components/Shared/StoreTypeTable";
+import OrderAdd from "../components/Shared/OrderAdd";
 
 export const router = createBrowserRouter([
     {
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
             {
                 path: "orders/:ordersId",
                 element: <OrderDetailsPage />,
+            },
+            {
+                path: "orders/add",
+                element: <OrderAdd />,
             },
             {
                 path: "stores",
