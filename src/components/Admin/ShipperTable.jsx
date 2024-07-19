@@ -162,8 +162,8 @@ const ShipperTable = () => {
     },
     {
       title: "Active",
-      dataIndex: "is-active",
-      key: "is-active",
+      dataIndex: ["staff","is-active"],
+      key: "staff.is-active",
       render: (isActive) => (
         <Tag color={isActive ? "green" : "red"}>
           {isActive ? "Active" : "Inactive"}
@@ -172,8 +172,8 @@ const ShipperTable = () => {
     },
     {
       title: "Locked",
-      dataIndex: "is-locked",
-      key: "is-locked",
+      dataIndex: ["staff","is-locked"],
+      key: "staff.is-locked",
       render: (isLocked) => (
         <Tag color={isLocked ? "red" : "green"}>
           {isLocked ? "Locked" : "Unlocked"}
