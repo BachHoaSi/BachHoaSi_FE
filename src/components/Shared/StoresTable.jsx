@@ -158,8 +158,8 @@ const StoresTable = () => {
         status: values.status,
         location: values.location,
         "store-level": values.storeLevel,
-    };
-    console.log(requestBody);
+      };
+      console.log(requestBody);
 
       if (selectedStore) {
         await api.put(
@@ -362,7 +362,7 @@ const StoresTable = () => {
           </Form.Item>
           <Form.Item
             name="location"
-            label="Bocation"
+            label="Location"
             rules={[{ required: true, message: "Vui lòng nhập vị trí!" }]}
           >
             <Input />

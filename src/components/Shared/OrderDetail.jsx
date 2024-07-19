@@ -1,14 +1,14 @@
 import { ArrowLeftOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   Avatar,
-  Modal,
   Button,
-  Select,
   Card,
   Col,
   Descriptions,
+  Modal,
   Popconfirm,
   Row,
+  Select,
   Space,
   Table,
   Tag,
@@ -16,10 +16,10 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import styled from "styled-components";
-import api from "../../services/api";
-import { formatFormalDate } from "../../helper/tool";
 import { ToastContainer, toast } from "react-toastify";
+import styled from "styled-components";
+import { formatFormalDate } from "../../helper/tool";
+import api from "../../services/api";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -136,17 +136,17 @@ const OrderDetailsPage = () => {
 
   const handleUpdateStatus = async () => {
     await api.patch(`orders/change-status/${ordersId}?status=${selectedStatus}`)
-    .then((res) => {
+      .then((res) => {
         if (res.status === 200 && res.data.isSuccess) {
-            toast.success('Update Success');
-            handleCloseModalChangeStatus();
-            setSelectedStatus(null);
+          toast.success('Update Success');
+          handleCloseModalChangeStatus();
+          setSelectedStatus(null);
         } else {
-            toast.error(`Failed to update status: ${res.data.message}`);
+          toast.error(`Failed to update status: ${res.data.message}`);
         }
-    }).catch(() => {
+      }).catch(() => {
         toast.error("Error");
-    })
+      })
   };
 
   const getStatusTagColor = (status) => {
@@ -245,6 +245,9 @@ const OrderDetailsPage = () => {
                 <Descriptions.Item label="Delivery Day">
                   {formatFormalDate(deliveryAt)}
                 </Descriptions.Item>
+                <Descriptions.Item label="Shipper">
+
+                </Descriptions.Item>
                 <Descriptions.Item label="Feedback">
                   {feedback ? feedback : "None"}
                 </Descriptions.Item>
@@ -276,28 +279,28 @@ const OrderDetailsPage = () => {
               {["ACCEPTED", "IN_TRANSIT", "PENDING", "PICKED_UP"].includes(
                 status
               ) && (
-                <Popconfirm
-                  title="Are you sure you want to cancel that order?"
-                  onConfirm={() => {
-                    cancelOrder(ordersId);
-                  }}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <Button
-                    type="danger"
-                    icon={<DeleteOutlined />}
-                    style={{
-                      marginTop: "20px",
-                      backgroundColor: "red",
-                      color: "white",
-                      width: "100%",
+                  <Popconfirm
+                    title="Are you sure you want to cancel that order?"
+                    onConfirm={() => {
+                      cancelOrder(ordersId);
                     }}
+                    okText="Yes"
+                    cancelText="No"
                   >
-                    Cancel Order
-                  </Button>
-                </Popconfirm>
-              )}
+                    <Button
+                      type="danger"
+                      icon={<DeleteOutlined />}
+                      style={{
+                        marginTop: "20px",
+                        backgroundColor: "red",
+                        color: "white",
+                        width: "100%",
+                      }}
+                    >
+                      Cancel Order
+                    </Button>
+                  </Popconfirm>
+                )}
             </StyledCard>
           </Col>
         </Row>
@@ -315,7 +318,7 @@ const OrderDetailsPage = () => {
           </Button>,
         ]}
       >
-        <Select value={selectedStatus} style={{'width': '9em'}} onChange={handleStatusChange}>
+        <Select value={selectedStatus} style={{ 'width': '9em' }} onChange={handleStatusChange}>
           <Option value="PENDING">Pending</Option>
           <Option value="ACCEPTED">Accepted</Option>
           <Option value="PICKED_UP">Picked Up</Option>
