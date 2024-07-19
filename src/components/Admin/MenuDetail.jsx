@@ -12,20 +12,55 @@ const MenuDetail = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [products, setProducts] = useState([]);
   const [menuId, setMenuId] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState('');
   const { menuId: currentMenuId } = useParams();
-  const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false); 
+  const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false);
+  const [isUpdateProductModalVisible, setIsUpdateProductModalVisible] = useState(false); 
   useEffect(() => {
     fetchMenuData();
     fetchProducts(); // Fetch products when component mounts
     setMenuId(currentMenuId);
   }, []);
 
+  const handleUpdateProduct = async (values) => {
+    try {
+      const response = await api.put(`product-menus?menuId=${selectedProduct.menuId}`, values);
+      if (response.data.isSuccess) {
+        message.success('Product updated successfully!');
+        fetchMenuData(currentPage);
+        setIsUpdateProductModalVisible(false);
+      } else {
+        message.error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      message.error('Failed to update product');
+    }
+  };
+
   const fetchMenuData = async () => {
     setLoading(true);
     try {
       const response = await api.get(`product-menus/${currentMenuId}`);
       if (response.data.isSuccess) {
-        setDataSource(response.data.data.content);
+        const {content} = response.data.data;
+        const transformedData = content.map((item) => ({
+          adminName: item.adminName,
+          basePrice: item.basePrice,
+          id: item.id,
+          menuId: item.menuId,
+          productId: item.productId,
+          status: item.status,
+          name: item.productDetails.name,
+          description: item.productDetails.description,
+          productCode: item.productDetails["product-code"], // Convert "product-code" to camelCase
+          basePriceProduct: item.productDetails["base-price"], // Convert "base-price" to camelCase
+          urlImage: item.productDetails["url-image"], // Convert "url-image" to camelCase
+          stockQuantity: item.productDetails["stock-quantity"], // Convert "stock-quantity" to camelCase
+          categoryName: item.productDetails["category-name"], // Convert "category-name" to camelCase
+        }));
+        setDataSource(transformedData);
+        console.log(dataSource);
       } else {
         message.error(response.data.message);
       }
@@ -35,6 +70,11 @@ const MenuDetail = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRowClick = async (record) => {
+    setSelectedProduct(record);
+    setIsUpdateProductModalVisible(true);
   };
 
   const fetchProducts = async () => {
@@ -81,20 +121,24 @@ const MenuDetail = () => {
       key: 'id',
     },
     {
-      title: 'Product ID',
-      dataIndex: 'productId',
-      key: 'productId',
-    },
-    {
-      title: 'Menu ID',
-      dataIndex: 'menuId',
-      key: 'menuId',
+      title: 'Image',
+      dataIndex: 'urlImage', // Correct way to access nested properties
+      key: 'urlImage',
+      render: (imageUrl) => (
+        <img src={imageUrl} alt="Product" width={50} height={50} /> // Render image
+      ),
     },
     {
       title: 'Base Price',
       dataIndex: 'basePrice',
       key: 'basePrice',
-      render: (price) => `${price} VND`, // Format as VND currency
+      render: (price) => `${price} VND`, 
+    },
+    {
+      title: 'Stock Quantity',
+      dataIndex: 'stockQuantity',
+      key: 'stockQuantity',
+      render: (quantity) => `${quantity}`, 
     },
     {
       title: 'Status',
@@ -158,6 +202,40 @@ const MenuDetail = () => {
         </Form>
       </Modal>
 
+      <Modal
+        title="Update Product in Menu"
+        visible={isUpdateProductModalVisible}
+        onCancel={() => setIsUpdateProductModalVisible(false)}
+        footer={null}
+      >
+        <Form onFinish={handleUpdateProduct}>
+            <Form.Item name="productId" label="Product ID" initialValue={selectedProduct.productId} disabled>
+              <Input type="number" disabled/>
+            </Form.Item>
+
+            <Form.Item name="price" label="Price" initialValue={selectedProduct.basePrice} rules={[{ required: true, message: 'Please enter a price' }]}>
+              <Input type="number" min={1}/>
+            </Form.Item>
+
+            <Form.Item name="status" label="Status" initialValue={selectedProduct.status} rules={[{ required: true, message: 'Please select a status' }]}>
+              <Select>
+                <Option value={true}>Active</Option>
+                <Option value={false}>Inactive</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Update Product
+              </Button>
+              <Button onClick={() => setIsUpdateProductModalVisible(false)}>
+                Cancel
+              </Button>
+            </Form.Item>
+          </Form>
+      </Modal>
+
+
       <h2>Product List in Menu</h2>
       <Table
         loading={loading}
@@ -166,7 +244,6 @@ const MenuDetail = () => {
         pagination={{
           current: currentPage + 1,
           pageSize: 10,
-          total: 2, // Replace with actual total element count from response
           onChange: (page) => {
             setCurrentPage(page - 1);
             fetchMenuData();
