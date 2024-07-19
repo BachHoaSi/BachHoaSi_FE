@@ -56,6 +56,11 @@ const MenuTable = () => {
       key: 'type',
     },
     {
+      title: 'Level',
+      dataIndex: 'level',
+      key: 'level',
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
