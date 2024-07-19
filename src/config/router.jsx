@@ -19,6 +19,7 @@ import MenuTable from "../components/Admin/MenuTable";
 import StoreLevelTable from "../components/Shared/StoreLevelTable";
 import StoreTypeTable from "../components/Shared/StoreTypeTable";
 import OrderAdd from "../components/Shared/OrderAdd";
+import MenuDetail from "../components/Admin/MenuDetail";
 
 export const router = createBrowserRouter([
     {
@@ -80,6 +81,10 @@ export const router = createBrowserRouter([
             {
                 path: "menus",
                 element: <MenuTable/>
+            },
+            {
+                path: "menus/:menuId",
+                element: <MenuDetail/>
             },
             {
                 path: "store-levels",
