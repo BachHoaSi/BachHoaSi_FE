@@ -76,6 +76,17 @@ const StoresTable = () => {
     }
   };
 
+  const StoreStatus = {
+    REJECTED: 'REJECTED',
+    ACCEPTED: 'ACCEPTED',
+    PENDING: 'PENDING',
+    CREATED: 'CREATED'
+  }
+
+  const handleUpdateStatus =() => {
+    
+  }
+
   const fetchCategories = async () => {
     try {
       const response = await api.get("/store-levels");
