@@ -14,7 +14,6 @@ import {
   message,
 } from "antd";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../../services/api";
@@ -166,11 +165,11 @@ const StoresTable = () => {
         name: values.name,
         type: values.type,
         point: values.point,
-        status: values.status,
+        storeStatus: values.storeStatus,
         location: values.location,
         "store-level": values.storeLevel,
-    };
-    console.log(requestBody);
+      };
+      console.log(requestBody);
 
       if (selectedStore) {
         await api.put(
@@ -236,13 +235,33 @@ const StoresTable = () => {
     },
     {
       title: "Status",
-      dataIndex: ["store", "status"],
-      key: "store.status",
-      render: (status) => (
-        <Tag color={status ? "green" : "volcano"}>
-          {status ? "Active" : "Disabled"}
-        </Tag>
-      ),
+      dataIndex: ["store", "storeStatus"],
+      key: "store.storeStatus",
+      render: (storeStatus) => {
+        let color;
+        switch (storeStatus) {
+          case "REJECTED":
+            color = "volcano";
+            break;
+          case "ACCEPTED":
+            color = "green";
+            break;
+          case "PENDING":
+            color = "gold";
+            break;
+          case "CREATED":
+            color = "blue";
+            break;
+          default:
+            color = "default";
+            break;
+        }
+        return (
+          <Tag color={color}>
+            {storeStatus ? storeStatus : "Unknown"}
+          </Tag>
+        );
+      },
     },
     {
       title: "Store Level",
@@ -312,7 +331,7 @@ const StoresTable = () => {
               name: record.store.name,
               type: record.store.type,
               point: record.store.point,
-              status: record.store.status,
+              storeStatus: record.store.storeStatus,
               location: record.store.location,
               storeLevel: record.store["store-level"],
             });
@@ -373,7 +392,7 @@ const StoresTable = () => {
           </Form.Item>
           <Form.Item
             name="location"
-            label="Bocation"
+            label="Location"
             rules={[{ required: true, message: "Vui lòng nhập vị trí!" }]}
           >
             <Input />

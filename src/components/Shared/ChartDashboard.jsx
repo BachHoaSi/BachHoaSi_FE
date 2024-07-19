@@ -1,4 +1,4 @@
-import 'animate.css'; // Import animate.css here
+
 import {
     Avatar,
     Card,
@@ -9,10 +9,11 @@ import {
     Row,
     Select,
     Space,
-    Statistic, Table,
+    Statistic,
+    Table,
     Typography,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { React, useEffect, useState } from "react";
 import {
     CartesianGrid,
     Cell,
@@ -23,9 +24,12 @@ import {
     PieChart,
     ResponsiveContainer,
     Tooltip,
-    XAxis, YAxis,
+    XAxis,
+    YAxis,
 } from 'recharts';
 import styled from 'styled-components';
+import api from '../../services/api';
+import "../Style/sidebar.scss";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -65,6 +69,12 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
 const Dashboard = () => {
     const [selectedRange, setSelectedRange] = useState([null, null]);
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [totalStores, setTotalStores] = useState(0);
+    const [totalAdmins, setTotalAdmins] = useState(0);
+    const [totalShippers, setTotalShippers] = useState(0);
+    const [totalRevenue, setTotalRevenue] = useState(0);
+    const [recentOrdersData, setRecentOrdersData] = useState([]);
 
     const handleDateRangeChange = (dates) => {
         setSelectedRange(dates);
@@ -81,15 +91,135 @@ const Dashboard = () => {
         }
     }, []);
 
+    useEffect(() => {
+        fetchTotalOrders();
+        fetchTotalStores();
+        fetchTotalAdmins();
+        fetchTotalShippers();
+        fetchRevenue();
+        fetchRecentOrders();
+    }, []);
+
+    const fetchTotalOrders = async () => {
+        try {
+            const response = await api.get('/orders', {
+                params: {
+                    page: 0,
+                    size: 10000,
+                },
+            });
+            if (response.status === 200 || response.data.isSuccess) {
+                console.log("orders", response.data.data.content.length);
+                setTotalOrders(response.data.data.content.length);
+            } else {
+                console.error('Error fetching total orders:', response);
+            }
+        } catch (error) {
+            console.error('Error fetching total orders:', error);
+        }
+    };
+    const fetchTotalStores = async () => {
+        try {
+            const response = await api.get('/stores', {
+                params: {
+                    page: 0,
+                    size: 10000,
+                },
+            });
+            if (response.status === 200 || response.data.isSuccess) {
+                console.log("stores", response.data.data.content.length);
+                setTotalStores(response.data.data.content.length);
+            } else {
+                console.error('Error fetching total orders:', response);
+            }
+        } catch (error) {
+            console.error('Error fetching total orders:', error);
+        }
+    };
+    const fetchTotalAdmins = async () => {
+        try {
+            const response = await api.get('/admins', {
+                params: {
+                    page: 0,
+                    size: 10000,
+                },
+            });
+            if (response.status === 200 || response.data.isSuccess) {
+                console.log("admins", response.data.data.content.length);
+                setTotalAdmins(response.data.data.content.length);
+            } else {
+                console.error('Error fetching total orders:', response);
+            }
+        } catch (error) {
+            console.error('Error fetching total orders:', error);
+        }
+    };
+    const fetchTotalShippers = async () => {
+        try {
+            const response = await api.get('/shippers', {
+                params: {
+                    page: 0,
+                    size: 10000,
+                    q: 'q',
+                },
+            });
+            if (response.status === 200 || response.data.isSuccess) {
+                console.log("shippers", response.data.data.content.length);
+                setTotalShippers(response.data.data.content.length);
+            } else {
+                console.error('Error fetching total orders:', response);
+            }
+        } catch (error) {
+            console.error('Error fetching total orders:', error);
+        }
+    };
+    const fetchRevenue = async () => {
+        try {
+            const response = await api.get('/orders', {
+                params: {
+                    page: 0,
+                    size: 10000,
+                },
+            });
+            if (response.status === 200 || response.data.isSuccess) {
+                const totalRevenue = response.data.data.content.reduce((total, order) => total + order.totalPrice, 0);
+                console.log("revenue", totalRevenue);
+                setTotalRevenue(totalRevenue);
+            } else {
+                console.error('Error fetching total orders:', response);
+            }
+        } catch (error) {
+            console.error('Error fetching total orders:', error);
+        }
+    };
+
+    const fetchRecentOrders = async () => {
+        try {
+            const response = await api.get('/orders', {
+                params: {
+                    page: 0,
+                    size: 5,
+                },
+            });
+            if (response.status === 200 || response.data.isSuccess) {
+                setRecentOrdersData(response.data.data.content);
+            } else {
+                console.error('Error fetching recent orders:', response);
+            }
+        } catch (error) {
+            console.error('Error fetching recent orders:', error);
+        }
+    };
+
     const columns = [
-        { title: 'ID', dataIndex: 'id', key: 'id' },
-        { title: 'Store', dataIndex: 'store', key: 'store' },
-        { title: 'Date', dataIndex: 'date', key: 'date' },
-        { title: 'Amount', dataIndex: 'amount', key: 'amount' },
+        { title: 'ID', dataIndex: 'orderId', key: 'orderId' },
+        { title: 'Store', dataIndex: 'storeName', key: 'storeName' },
+        { title: 'Date', dataIndex: 'createdDate', key: 'createdDate' },
+        { title: 'Amount', dataIndex: 'totalPrice', key: 'totalPrice', render: (price) => `${(parseFloat(price) || 0).toFixed(2)} VND` },
     ];
 
     return (
-        <div className={`animate__animated ${animate}`}>
+        <div className={`animate__animated ${animate} `}>
             <StyledDashboard>
                 <Row gutter={[16, 16]}>
                     <Col span={24}>
@@ -108,22 +238,22 @@ const Dashboard = () => {
 
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Total Orders" value={1234} />
+                            <Statistic title="Total Orders" value={totalOrders} />
                         </Card>
                     </Col>
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Revenue" prefix="$" value={56789.0} />
+                            <Statistic title="Revenue" value={totalRevenue + " VND"} />
                         </Card>
                     </Col>
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Profit" prefix="$" value={23456.78} />
+                            <Statistic title="Staff" value={totalAdmins + totalShippers} />
                         </Card>
                     </Col>
                     <Col span={6}>
                         <Card>
-                            <Statistic title="Total Stores" value={987} />
+                            <Statistic title="Total Stores" value={totalStores} />
                         </Card>
                     </Col>
 
@@ -160,7 +290,7 @@ const Dashboard = () => {
                                         label
                                     >
                                         {transactionData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            <Cell key={`cell - ${index} `} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
                                 </PieChart>
@@ -170,7 +300,7 @@ const Dashboard = () => {
 
                     <Col span={12}>
                         <Card title="Recent Orders">
-                            <Table columns={columns} dataSource={recentOrders} pagination={false} />
+                            <Table columns={columns} dataSource={recentOrdersData} pagination={false} />
                         </Card>
                     </Col>
 
@@ -186,27 +316,28 @@ const Dashboard = () => {
                                             title={item.name}
                                             description={`Sales: ${item.sales}`}
                                         />
-                                    </List.Item>
+                                    </List.Item >
                                 )}
                             />
-                        </Card>
-                    </Col>
-                </Row>
-            </StyledDashboard>
-        </div>
+                        </Card >
+                    </Col >
+                </Row >
+            </StyledDashboard >
+        </div >
     );
 };
 
 // Styled Components
 const StyledDashboard = styled.div`
-  padding: 24px;
-`;
+    padding: 24px;
+  `;
 
 const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  `;
 
 export default Dashboard;
+
