@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Menu, Dropdown, Space, Button, Modal, message, Input, Select, Form, Pagination } from 'antd';
+import { Table, Menu, Dropdown, Space, Button, Modal, message, Input, Select, Form, InputNumber } from 'antd';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api from '../../services/api';
 
 const { Option } = Select;
@@ -9,23 +9,21 @@ const { Option } = Select;
 const MenuDetail = () => {
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [products, setProducts] = useState([]);
   const [menuId, setMenuId] = useState(null);
-  const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false); // State for modal visibility
-  const navigate = useNavigate();
   const { menuId: currentMenuId } = useParams();
-
+  const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false); 
   useEffect(() => {
-    fetchMenuData(currentPage);
-    fetchProducts(currentPage);
+    fetchMenuData();
+    fetchProducts(); // Fetch products when component mounts
     setMenuId(currentMenuId);
   }, []);
 
-  const fetchMenuData = async (page) => {
+  const fetchMenuData = async () => {
     setLoading(true);
     try {
-      const response = await api.get(`menus/${currentMenuId}?page=${page - 1}`);
+      const response = await api.get(`product-menus/${currentMenuId}`);
       if (response.data.isSuccess) {
         setDataSource(response.data.data.content);
       } else {
@@ -39,10 +37,10 @@ const MenuDetail = () => {
     }
   };
 
-  const fetchProducts = async (page) => {
+  const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/products?page=${page - 1}`);
+      const response = await api.get('products'); // Replace with your actual product API endpoint
       if (response.data.isSuccess) {
         setProducts(response.data.data.content);
       } else {
@@ -58,11 +56,15 @@ const MenuDetail = () => {
 
   const handleAddProduct = async (values) => {
     try {
-      const response = await axios.post('/your-add-product-to-menu-api-endpoint', values);
+    const requestBody = {
+        "price": values.price,
+        "status": values.status,
+        "product-id": values.productId
+      }
+      const response = await api.post(`menus/${values.menuId}`, requestBody);
       if (response.data.isSuccess) {
         message.success('Product added to menu successfully!');
-        fetchMenuData(currentPage);
-        setIsAddProductModalVisible(false); // Close modal after success
+        fetchMenuData();
       } else {
         message.error(response.data.message);
       }
@@ -72,28 +74,39 @@ const MenuDetail = () => {
     }
   };
 
-  const handleRowClick = async (record) => {
-    try {
-      const response = await api.get(`products/${record.productId}`);
-      if (response.data.isSuccess) {
-        navigate(`/menu-detail/${currentMenuId}`, { state: { productDetails: response.data.data } });
-      } else {
-        message.error(response.data.message);
-      }
-    } catch (error) {
-      console.error('Error fetching product details:', error);
-      message.error('Failed to fetch product details');
-    }
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    fetchMenuData(page);
-    fetchProducts(page);
-  };
-
   const columns = [
-    // ... (columns remain the same)
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: 'Product ID',
+      dataIndex: 'productId',
+      key: 'productId',
+    },
+    {
+      title: 'Menu ID',
+      dataIndex: 'menuId',
+      key: 'menuId',
+    },
+    {
+      title: 'Base Price',
+      dataIndex: 'basePrice',
+      key: 'basePrice',
+      render: (price) => `${price} VND`, // Format as VND currency
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => (status ? 'Active' : 'Inactive'),
+    },
+    {
+      title: 'Admin Name',
+      dataIndex: 'adminName',
+      key: 'adminName',
+    },
   ];
 
   return (
@@ -102,7 +115,6 @@ const MenuDetail = () => {
       <Button type="primary" onClick={() => setIsAddProductModalVisible(true)}>
         Add Product to Menu
       </Button>
-
       <Modal
         title="Add Product to Menu"
         visible={isAddProductModalVisible}
@@ -111,7 +123,7 @@ const MenuDetail = () => {
       >
         <Form onFinish={handleAddProduct}>
           <Form.Item name="menuId" label="Menu ID" initialValue={currentMenuId} disabled>
-            <Input type="number" />
+            <Input type="number" disabled />
           </Form.Item>
 
           <Form.Item name="productId" label="Product" rules={[{ required: true, message: 'Please select a product' }]}>
@@ -125,7 +137,14 @@ const MenuDetail = () => {
           </Form.Item>
 
           <Form.Item name="price" label="Price" rules={[{ required: true, message: 'Please enter a price' }]}>
-            <Input type="number" />
+            <InputNumber min={1} />
+          </Form.Item>
+
+          <Form.Item name="status" label="Status" rules={[{ required: true, message: 'Please select a status' }]}>
+            <Select>
+              <Option value={true}>Active</Option>
+              <Option value={false}>Inactive</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item>
@@ -144,25 +163,18 @@ const MenuDetail = () => {
         loading={loading}
         dataSource={dataSource}
         columns={columns}
-        pagination={false}
-      />
-      <Pagination 
-        current={currentPage} 
-        onChange={handlePageChange} 
-        total={10} 
-      />
-
-      <h2>Available Products</h2>
-      <Table
-        loading={loading}
-        dataSource={products}
-        columns={columns}
-        pagination={false}
-      />
-      <Pagination 
-        current={currentPage} 
-        onChange={handlePageChange} 
-        total={10} 
+        pagination={{
+          current: currentPage + 1,
+          pageSize: 10,
+          total: 2, // Replace with actual total element count from response
+          onChange: (page) => {
+            setCurrentPage(page - 1);
+            fetchMenuData();
+          },
+        }}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+        })}
       />
     </div>
   );
