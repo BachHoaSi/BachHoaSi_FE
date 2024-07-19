@@ -184,11 +184,16 @@ const StoresTable = () => {
 
   const handleUpdateStatusSubmit = async (values) => {
     try {
-      await api.patch(`/stores`, values);
-      fetchData();
-      setIsUpdateStatusModalVisible(false);
-      updateStatusForm.resetFields();
-      toast.success("Store status updated successfully");
+      const result = await api.patch(`/stores`, values);
+      if (result.data.isSuccess) {
+        fetchData();
+        setIsUpdateStatusModalVisible(false);
+        updateStatusForm.resetFields();
+        toast.success("Store status updated successfully");
+      } else {
+        toast.error(`Update failed: ${result.data.message}`);
+      }
+      
     } catch (error) {
       console.error("Failed to update store status:", error);
       toast.error("Failed to update store status. Please try again.");
