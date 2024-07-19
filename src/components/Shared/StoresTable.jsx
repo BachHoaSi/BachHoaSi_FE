@@ -17,13 +17,16 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from "../../services/api";
+import { common } from "@mui/material/colors";
 
 const { Option } = Select;
 const { Search } = Input;
 
 const StoresTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isUpdateStatusModalVisible, setIsUpdateStatusModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [updateStatusForm] = Form.useForm(); // New form for update status
   const [fileList, setFileList] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -77,15 +80,11 @@ const StoresTable = () => {
   };
 
   const StoreStatus = {
-    REJECTED: 'REJECTED',
-    ACCEPTED: 'ACCEPTED',
-    PENDING: 'PENDING',
-    CREATED: 'CREATED'
-  }
-
-  const handleUpdateStatus =() => {
-    
-  }
+    REJECTED: "REJECTED",
+    ACCEPTED: "ACCEPTED",
+    PENDING: "PENDING",
+    CREATED: "CREATED",
+  };
 
   const fetchCategories = async () => {
     try {
@@ -105,33 +104,6 @@ const StoresTable = () => {
     setSearchParams({
       name: value,
     });
-  };
-
-  const handleCreateStore = () => {
-    setSelectedStore(null);
-    setIsModalVisible(true);
-  };
-
-  const handleRankChange = (value) => {
-    setSelectedRank(value);
-    handleFilterData(value, searchText);
-  };
-
-  const handleFilterData = (rank, searchText) => {
-    let filteredData = data;
-    if (rank !== "All") {
-      filteredData = filteredData.filter(
-        (item) => item["store-level"] === rank
-      );
-    }
-    if (searchText) {
-      filteredData = filteredData.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.location.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-    setFilteredData(filteredData);
   };
 
   const handleDeleteStore = async (key, event) => {
@@ -206,6 +178,22 @@ const StoresTable = () => {
     }
   };
 
+  const handleUpdateStatus = () => {
+    setIsUpdateStatusModalVisible(true);
+  };
+
+  const handleUpdateStatusSubmit = async (values) => {
+    try {
+      await api.patch(`/stores`, values);
+      fetchData();
+      setIsUpdateStatusModalVisible(false);
+      updateStatusForm.resetFields();
+      toast.success("Store status updated successfully");
+    } catch (error) {
+      console.error("Failed to update store status:", error);
+      toast.error("Failed to update store status. Please try again.");
+    }
+  };
 
   const columns = [
     {
@@ -296,6 +284,9 @@ const StoresTable = () => {
           marginBottom: "20px",
         }}
       >
+        <Button type="primary" onClick={handleUpdateStatus}>
+          Change Store Status
+        </Button>
         <Select
           defaultValue={selectedRank}
           style={{ width: 200 }}
@@ -318,6 +309,7 @@ const StoresTable = () => {
         onChange={(e) => handleSearch(e.target.value)}
         style={{ marginBottom: 16 }}
       />
+
       <Table
         columns={columns}
         dataSource={data}
@@ -407,6 +399,53 @@ const StoresTable = () => {
                 <Select.Option key={category.id} value={category.id}>
                   {category.level}
                 </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+      {/* Modal for updating store status */}
+      <Modal
+        title="Update Store Status"
+        open={isUpdateStatusModalVisible}
+        onOk={() => updateStatusForm.submit()} // Submit the form on OK
+        onCancel={() => setIsUpdateStatusModalVisible(false)}
+        footer={[
+          <Button key="back" onClick={() => setIsUpdateStatusModalVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => updateStatusForm.submit()} // Submit the form
+          >
+            Update
+          </Button>,
+        ]}
+      >
+        <Form
+          form={updateStatusForm}
+          onFinish={handleUpdateStatusSubmit}
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 18 }}
+        >
+          <Form.Item
+            name="id"
+            label="Store ID"
+            rules={[{ required: true, message: "Please enter store ID" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="status"
+            label="Status"
+            rules={[{ required: true, message: "Please select status" }]}
+          >
+            <Select>
+              {Object.values(StoreStatus).map((status) => (
+                <Option key={status} value={status}>
+                  {status}
+                </Option>
               ))}
             </Select>
           </Form.Item>
