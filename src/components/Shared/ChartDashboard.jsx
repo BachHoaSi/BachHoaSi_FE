@@ -5,28 +5,14 @@ import {
     Col,
     DatePicker,
     List,
-    Progress,
     Row,
     Select,
     Space,
     Statistic,
     Table,
-    Typography,
+    Typography
 } from 'antd';
 import { React, useEffect, useState } from "react";
-import {
-    CartesianGrid,
-    Cell,
-    Legend,
-    Line,
-    LineChart,
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts';
 import styled from 'styled-components';
 import api from '../../services/api';
 import "../Style/sidebar.scss";
@@ -75,6 +61,7 @@ const Dashboard = () => {
     const [totalShippers, setTotalShippers] = useState(0);
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [recentOrdersData, setRecentOrdersData] = useState([]);
+    const [topSellingProducts, setTopSellingProducts] = useState([]);
 
     const handleDateRangeChange = (dates) => {
         setSelectedRange(dates);
@@ -98,6 +85,7 @@ const Dashboard = () => {
         fetchTotalShippers();
         fetchRevenue();
         fetchRecentOrders();
+        fetchTopSellingProducts();
     }, []);
 
     const fetchTotalOrders = async () => {
@@ -192,7 +180,6 @@ const Dashboard = () => {
             console.error('Error fetching total orders:', error);
         }
     };
-
     const fetchRecentOrders = async () => {
         try {
             const response = await api.get('/orders', {
@@ -208,6 +195,19 @@ const Dashboard = () => {
             }
         } catch (error) {
             console.error('Error fetching recent orders:', error);
+        }
+    };
+    const fetchTopSellingProducts = async () => {
+        try {
+            const response = await api.get('/work');
+            if (response.status === 200 || response.data.isSuccess) {
+                setTopSellingProducts(response.data.data);
+                console.log("top sell", response.data.data);
+            } else {
+                console.error('Error fetching top selling products:', response);
+            }
+        } catch (error) {
+            console.error('Error fetching top selling products:', error);
         }
     };
 
@@ -257,47 +257,6 @@ const Dashboard = () => {
                         </Card>
                     </Col>
 
-                    <Col span={16}>
-                        <Card title="Reports">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={salesData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="date" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Line type="monotone" dataKey="sales" stroke="#8884d8" />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </Card>
-                    </Col>
-
-                    <Col span={8}>
-                        <Card title="Analytics">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                                <span>Transactions:</span>
-                                <Progress percent={75} />
-                            </div>
-                            <ResponsiveContainer width="100%" height={262}>
-                                <PieChart>
-                                    <Pie
-                                        data={transactionData}
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                        label
-                                    >
-                                        {transactionData.map((entry, index) => (
-                                            <Cell key={`cell - ${index} `} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </Card>
-                    </Col>
-
                     <Col span={12}>
                         <Card title="Recent Orders">
                             <Table columns={columns} dataSource={recentOrdersData} pagination={false} />
@@ -308,13 +267,13 @@ const Dashboard = () => {
                         <Card title="Top Selling Products">
                             <List
                                 itemLayout="horizontal"
-                                dataSource={topProducts}
+                                dataSource={topSellingProducts}
                                 renderItem={(item) => (
                                     <List.Item>
                                         <List.Item.Meta
-                                            avatar={<Avatar src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${item.id}`} />}
-                                            title={item.name}
-                                            description={`Sales: ${item.sales}`}
+                                            avatar={<Avatar src={`${item.productName}`} />}
+                                            title={item.urlImage}
+                                            description={`Sales: ${item.quantity}`}
                                         />
                                     </List.Item >
                                 )}
